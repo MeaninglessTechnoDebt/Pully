@@ -11,7 +11,7 @@ contract NFT is ERC721Token {
 }
 */
 
-contract Ledger is ERC721Token, ISideA, ISideB {
+contract Ledger is ISideA, ISideB {
 	//NFT nft;
 
 	struct UserState {

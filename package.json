@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "scripts/test.sh"
   },
   "author": "",
   "license": "ISC",
@@ -12,6 +12,10 @@
     "truffle": "^4.1.14"
   },
   "dependencies": {
+    "chai": "^4.1.2",
+    "chai-as-promised": "^7.1.1",
+    "chai-bignumber": "^2.0.2",
+    "ganache-cli": "^6.1.8",
     "truffle-contract": "^3.0.6",
     "truffle-hdwallet-provider": "0.0.5",
     "zeppelin-solidity": "^1.12.0"
