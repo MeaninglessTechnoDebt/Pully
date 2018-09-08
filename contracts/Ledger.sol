@@ -6,9 +6,12 @@ import "zeppelin-solidity/contracts/token/ERC721/ERC721Token.sol";
 import "zeppelin-solidity/contracts/math/SafeMath.sol";
 
 
+
 /**
  * @title Ledger 
  * @dev Main MeaninglessTechnoDebt/TechnoDebit contract. 
+ * Check TechReqs here:
+ * https://docs.google.com/document/d/1pQy_FLmfn-ToRTYN7v-xtg1LsAVGXrNsgbfozeCWV9A/edit?usp=sharing
  */
 contract Ledger is ISideA, ISideB, ERC721Token("Pully","PULL") {
 	using SafeMath for uint256;
