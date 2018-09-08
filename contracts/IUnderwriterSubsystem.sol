@@ -2,7 +2,7 @@ pragma solidity ^0.4.24;
 
 contract IUnderwriterSubsystem {
 // 1 - to become a moderator
-	function becomeAnUnderwriter()public;
+	function becomeAnUnderwriter(address _a) public;
 
 // 2 - enumerate
 	function getUnderwritersCount()public view returns(uint count);
@@ -12,7 +12,7 @@ contract IUnderwriterSubsystem {
 	function wantToSelectUnderwriter(uint _underwriterIndex, uint256 _infoIpfsHash) public;
 
 // 4 - Underwriter should accept the request
-	function getUnderwriterRequest(uint _index) public view returns(address sideB);
+	function getUnderwriterRequestInfo(uint _index) public view returns(uint256 infoIpfsHash, bool isAccepted);
 	function acceptUnderwriterRequest(uint _index) public;
 }
 

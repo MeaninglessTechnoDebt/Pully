@@ -25,12 +25,12 @@ contract UnderwriterSubsystem is IUnderwriterSubsystem, DaoClient {
 	}
 
 // 1 - to become a moderator
-	function becomeAnUnderwriter()public isCanDo(BECOME_UNDERWRITER){
+	function becomeAnUnderwriter(address _a)public isCanDo(BECOME_UNDERWRITER){
 		// TODO: check if already in the list)
 
-		underwriters.push(msg.sender);
+		underwriters.push(_a);
 
-		emit BecomeAnUnderwriter(msg.sender);
+		emit BecomeAnUnderwriter(_a);
 	}
 
 // 2 - enumerate requests
