@@ -8,9 +8,9 @@ npm run test
 ```
 
 ## TODO:
+1. write basic tests for the getters/setters 
 1. implement charge 
 1. implement transferAllowance 
-1. write basic tests for the getters/setters 
 1. add ERC721Token inheritance - not working currently because we are running out of gas ((((
   
 1. implement editMyAllowance 
