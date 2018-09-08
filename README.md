@@ -13,9 +13,8 @@ npm run test
 ```
 
 ## TODO:
-1. * implement transferAllowance 
 1. Dharma integration 
-1. DutchX integration
+1. > DutchX integration
   
 1. implement editMyAllowance 
 1. implement all IUnderwriterSubsystem methods
