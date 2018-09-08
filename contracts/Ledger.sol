@@ -32,7 +32,7 @@ contract ISideA {
 
 // 3 - overdrafted flag
 	// if you have asked for more than current AllowedAmount and less than AllowedAmount + overdraft
-	function isOverdrafted(address _sideB) public view returns(bool overdrafted);
+	function isOverdrafted(address _sideA, address _sideB) public view returns(bool overdrafted);
 	// should be called by the SideA for the SideB
 	function clearOverdraftedFlag(address _sideB) public;
 }
@@ -46,7 +46,7 @@ contract ISideB {
 
 	// will either return money OR 
 	// will return money + generate new allowance (plus interested) to the SideB (me)
-	function charge(address _allowedBy, uint _amountWei) public;
+	function charge(uint _index, uint _amountWei) public;
 }
 
 contract IUnderwriterSubsystem {
