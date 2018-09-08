@@ -1,12 +1,18 @@
 pragma solidity ^0.4.24;
 
 import "./ILedger.sol";
-import "zeppelin-solidity/contracts/token/ERC721/ERC721.sol";
+import "zeppelin-solidity/contracts/token/ERC721/ERC721Token.sol";
 
+/*
+contract NFT is ERC721Token {
+	constructor NFT() public ERC721Token("MTDA", "MTD"){
 
-contract Ledger is ERC721, ISideA, ISideB {
-	constructor() public {
 	}
+}
+*/
+
+contract Ledger is ERC721Token, ISideA, ISideB {
+	//NFT nft;
 
 	struct UserState {
 		uint currentBalance;
@@ -14,8 +20,9 @@ contract Ledger is ERC721, ISideA, ISideB {
 		// TODO: not used right now
 		address currentUnderwriter;	
 
-		// See allowances array below
-		address[] allAllowances;
+		// uint256 IDs
+		uint256[] allAllowances;
+		uint256[] allAllowancesFrom;
 	}
 
 	struct Allowance {
@@ -28,6 +35,7 @@ contract Ledger is ERC721, ISideA, ISideB {
 		bool transferrable;
 
 		// TODO: transfering ERC721 should update THIS !!!
+		address sideA;
 		address sideB;
 		uint amountWei;
 		uint overdraftPpm;
@@ -35,7 +43,7 @@ contract Ledger is ERC721, ISideA, ISideB {
 		uint periodSeconds;
 		uint startingDate;
 
-		address erc721tokenAddress;
+		uint erc721tokenId;
 	}
 
 	struct UserToUserState {
@@ -43,6 +51,10 @@ contract Ledger is ERC721, ISideA, ISideB {
 		bool isOverdrafted;
 
 		// each allowance is connected with Allowance struct in the allowancesMetainfo
+		uint256[] allowances;
+	}
+
+	struct AllowancesArray {
 		address[] allowances;
 	}
 
@@ -50,10 +62,13 @@ contract Ledger is ERC721, ISideA, ISideB {
 	mapping (address=>UserState) userState;
 	// UserA -> UserB -> UserToUserState
 	mapping (address=>mapping(address=>UserToUserState)) user2userState;
-	// ERC721 address -> Allowance
-	mapping (address=>Allowance) allowancesMetainfo;
+	// ERC721 id -> Allowance (main storage of all allowances)
+	mapping (uint256=>Allowance) allowancesMetainfo;
 
 ////////////////////////////////////////////////////////////////////////////////////
+	constructor() public {
+	}
+
 	function deposit() public payable{
 		userState[msg.sender].currentBalance += msg.value;
 	}
@@ -102,8 +117,8 @@ contract Ledger is ERC721, ISideA, ISideB {
 	function getMyAllowanceInfo(uint _index) public 
 		view returns(address sideB, uint amountWei, uint overdraftPpm, uint interestRatePpm, uint periodSeconds, uint startingDate)
 	{
-		address erc721address = userState[msg.sender].allAllowances[_index];
-		Allowance a = allowancesMetainfo[erc721address];
+		uint256 erc721id = userState[msg.sender].allAllowances[_index];
+		Allowance a = allowancesMetainfo[erc721id];
 
 		sideB = a.sideB;
 		amountWei = a.amountWei;
@@ -113,7 +128,7 @@ contract Ledger is ERC721, ISideA, ISideB {
 		startingDate = a.startingDate;
 	}
 
-	// edit each one 
+	// edit each allowance manually 
 	function editMyAllowance(
 		uint _index, 
 		uint _amountWei, 
@@ -122,7 +137,7 @@ contract Ledger is ERC721, ISideA, ISideB {
 		uint _periodSeconds, 
 		uint _startingDate) public 
 	{
-		// TODO: left for future version
+		// TODO: left for the future version
 	}
 
 // 3 - overdrafted flag
@@ -137,18 +152,33 @@ contract Ledger is ERC721, ISideA, ISideB {
 	}
 
 // SideB
-	function getAllowancesCount() public view returns(uint allowancesCount){
-		// TODO:
+	function getAllowancesCount() public view returns(uint){
+		return userState[msg.sender].allAllowancesFrom.length;
 	}
 
 	function getAllowanceInfo(uint _index) public 
 		view returns(address sideA, uint amountWei, uint overdraftPpm, uint interestRatePpm, uint periodSeconds, uint startingDate){
-		// TODO:
+		uint256 erc721id = userState[msg.sender].allAllowancesFrom[_index];
+		Allowance a = allowancesMetainfo[erc721id];
+
+		sideA = a.sideA;
+		amountWei = a.amountWei;
+		overdraftPpm = a.overdraftPpm;
+		interestRatePpm = a.interestRatePpm;
+		periodSeconds = a.periodSeconds;
+		startingDate = a.startingDate;
 	}
 
 	// only for 'transferrable allowances' that were generated automatically in case of overdraft
 	function transferAllowance(uint _index, address _to) public {
+		uint256 erc721id = userState[msg.sender].allAllowancesFrom[_index];
+		Allowance a = allowancesMetainfo[erc721id];
+		require(a.transferrable);
+
 		// TODO:
+		// 1 - move ERC721 token to _to address 
+
+		// 2 - change all internal structs 
 	}
 
 	// will either return money OR 
@@ -158,7 +188,7 @@ contract Ledger is ERC721, ISideA, ISideB {
 	}
 
 //////// Internal stuff
-	function _createNewAllowance(address _sideB,
+	function _createNewAllowance(address _to,
 							uint _amountWei, 
 							uint _overdraftPpm, 
 							uint _interestRatePpm, 
@@ -166,5 +196,12 @@ contract Ledger is ERC721, ISideA, ISideB {
 							uint _startingDate) internal 
 	{
 		// TODO:
+		// 1 - issue new ERC721 token 
+		//uint256 newId = 0x0;		// TODO: generate new ID
+		//nft.mint(_to, newId);
+
+		// 2 - allowancesMetainfo
+
+		// 3 - update all internal structs
 	}
 }

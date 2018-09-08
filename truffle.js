@@ -3,7 +3,9 @@ const assert = require('assert')
 
 const DEFAULT_GAS_PRICE_GWEI = 5
 const GAS_LIMIT = 6.5e6
-const DEFAULT_MNEMONIC = 'candy maple cake sugar pudding cream honey rich smooth crumble sweet treat'
+
+const DEFAULT_MNEMONIC = "old deny elevator federal rib history bird squeeze emerge list multiply success"
+const INFURA_API_KEY = "915933c8c46046169e9afadaac265823"
 
 function truffleConfig ({
   mnemonic = DEFAULT_MNEMONIC,
@@ -42,7 +44,8 @@ function truffleConfig ({
         gasPrice
       },
       rinkeby: {
-        provider: _getProvider(urlRinkeby),
+        //provider: _getProvider(urlRinkeby),
+	   provider: () => new HDWalletProvider(DEFAULT_MNEMONIC, "https://rinkeby.infura.io/v3/" + INFURA_API_KEY),
         network_id: '4',
         gas,
         gasPrice
