@@ -54,10 +54,6 @@ contract Ledger is ERC721Token, ISideA, ISideB {
 		uint256[] allowances;
 	}
 
-	struct AllowancesArray {
-		address[] allowances;
-	}
-
 	// UserA -> UserState
 	mapping (address=>UserState) userState;
 	// UserA -> UserB -> UserToUserState
@@ -197,11 +193,16 @@ contract Ledger is ERC721Token, ISideA, ISideB {
 	{
 		// TODO:
 		// 1 - issue new ERC721 token 
-		//uint256 newId = 0x0;		// TODO: generate new ID
+		uint256 newErc721Id = 0x0;		// TODO: generate new ID
 		//nft.mint(_to, newId);
 
-		// 2 - allowancesMetainfo
+		// 2 - push Allowance struct to allowancesMetainfo
+		Allowance a;
+		allowancesMetainfo[newErc721Id] = a;
 
-		// 3 - update all internal structs
+		userState[msg.sender].allAllowances.push(newErc721Id);
+		userState[_to].allAllowancesFrom.push(newErc721Id);
+		
+		user2userState[msg.sender][_to].allowances.push(newErc721Id);
 	}
 }
