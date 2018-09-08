@@ -65,13 +65,15 @@ contract("Ledger", accounts => {
 			createdAllowance[3] = createdAllowance[3].toNumber();
 			createdAllowance[4] = createdAllowance[4].toNumber();
 			createdAllowance[5] = createdAllowance[5].toNumber();
+			createdAllowance[6] = createdAllowance[6];
 			assert.deepEqual(createdAllowance, [
 				to,
 				amount,
 				overdraft,
 				interestRate,
 				DAY_IN_SECONDS,
-				startDate
+				startDate,
+				false
 			]);
 
 			// check that ERC721 is minted
@@ -111,13 +113,15 @@ contract("Ledger", accounts => {
 			createdAllowance[3] = createdAllowance[3].toNumber();
 			createdAllowance[4] = createdAllowance[4].toNumber();
 			createdAllowance[5] = createdAllowance[5].toNumber();
+			createdAllowance[6] = createdAllowance[6];
 			assert.deepEqual(createdAllowance, [
 				to,
 				amount,
 				overdraft,
 				interestRate,
 				DAY_IN_SECONDS,
-				startDate
+				startDate,
+				false
 			]);
 			let userBalance = await ledger.getDepositBalance.call();
 			assert.equal(userBalance.toNumber(), depositAmount);

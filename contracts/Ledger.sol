@@ -132,7 +132,7 @@ contract Ledger is ISideA, ISideB, ERC721Token("Pully","PULL") {
 	* @param _index Current alowance index (in terms of SideA). Use getMyAllowancesCount() to get total count
 	*/
 	function getMyAllowanceInfo(uint _index) public 
-	view returns(address sideB, uint amountWei, uint overdraftPpm, uint interestRatePpm, uint periodSeconds, uint startingDate)
+	view returns(address sideB, uint amountWei, uint overdraftPpm, uint interestRatePpm, uint periodSeconds, uint startingDate, bool isDebt)
 	{
 		uint256 erc721id = userState[msg.sender].allAllowances[_index];
 		Allowance a = allowancesMetainfo[erc721id];
@@ -143,6 +143,8 @@ contract Ledger is ISideA, ISideB, ERC721Token("Pully","PULL") {
 		interestRatePpm = a.interestRatePpm;
 		periodSeconds = a.periodSeconds;
 		startingDate = a.startingDate;
+		// if allowance is transferrable -> it was generated because we have debt (see _charge method)
+		isDebt = (a.transferrable==true);
 	}
 
 	/**
@@ -191,7 +193,7 @@ contract Ledger is ISideA, ISideB, ERC721Token("Pully","PULL") {
 	* @param _index Current alowance index (in terms of SideB). Use getAllowancesCount() to get total count
 	*/
 	function getAllowanceInfo(uint _index) public 
-	view returns(address sideA, uint amountWei, uint overdraftPpm, uint interestRatePpm, uint periodSeconds, uint startingDate)
+	view returns(address sideA, uint amountWei, uint overdraftPpm, uint interestRatePpm, uint periodSeconds, uint startingDate, bool isDebt)
 	{
 		require(_index < getAllowancesCount());
 
@@ -204,6 +206,8 @@ contract Ledger is ISideA, ISideB, ERC721Token("Pully","PULL") {
 		interestRatePpm = a.interestRatePpm;
 		periodSeconds = a.periodSeconds;
 		startingDate = a.startingDate;
+		// if allowance is transferrable -> it was generated because we have debt (see _charge method)
+		isDebt = (a.transferrable==true);
 	}
 
 	/**

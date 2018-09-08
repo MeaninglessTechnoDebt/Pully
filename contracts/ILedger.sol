@@ -20,7 +20,7 @@ contract ISideA {
 
 	function getMyAllowancesCount() public view returns(uint allowancesCount);
 	function getMyAllowanceInfo(uint _index) public 
-	view returns(address sideB, uint amountWei, uint overdraftPpm, uint interestRatePpm, uint periodSeconds, uint startingDate);
+	view returns(address sideB, uint amountWei, uint overdraftPpm, uint interestRatePpm, uint periodSeconds, uint startingDate, bool isDebt);
 	// edit each one 
 	function editMyAllowance(
 		uint _index, 
@@ -40,7 +40,7 @@ contract ISideA {
 contract ISideB {
 	function getAllowancesCount() public view returns(uint allowancesCount);
 	function getAllowanceInfo(uint _index) public 
-	view returns(address sideA, uint amountWei, uint overdraftPpm, uint interestRatePpm, uint periodSeconds, uint startingDate);
+	view returns(address sideA, uint amountWei, uint overdraftPpm, uint interestRatePpm, uint periodSeconds, uint startingDate, bool isDebt);
 	// only for 'transferrable allowances' that were generated automatically in case of overdraft
 	function transferAllowance(uint _index, address _to) public;
 
@@ -49,16 +49,5 @@ contract ISideB {
 	function charge(uint _index, uint _amountWei) public;
 
 	function calculateAllowedPlusOverdraft(uint _index) public view returns(uint);
-}
-
-contract IUnderwriterSubsystem {
-	// SideA wants to add current underwriter. This will generate new underwriter request
-	function addUnderwriterRequest(address _underwriter) public;
-	function changeUnderwriter(address _newUnderwriter) public;
-
-	// in order to become an underwriter SideB should accept that
-	function getMyUnderwriterRequestsCount() public view returns(uint count);
-	function getUnderwriterRequest(uint _index) public view returns(address sideB);
-	function acceptUnderwriterRequest(address _sideA, address _sideB) public;
 }
 
