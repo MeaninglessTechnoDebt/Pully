@@ -261,6 +261,8 @@ contract Ledger is ISideA, ISideB, ERC721Token("Pully","PULL") {
 			_a.sideB.transfer(balance);
 			uint remainder = _amountWanted.sub(balance);
 			userState[_a.sideA].currentBalance = 0;
+
+			// 2 - create new allowance (plus interest!!!) and transfer it to SideB 
 			_createNewAllowance(_a.sideA,
 							_a.sideB,
 							remainder + remainder * _a.interestRatePpm/1000000, 
@@ -269,8 +271,6 @@ contract Ledger is ISideA, ISideB, ERC721Token("Pully","PULL") {
 							_a.periodSeconds, 
 							_a.startingDate.add(_a.periodSeconds),
 							true);
-			// TODO:
-			// 2 - issue debt token
 		}
 	}
 }

@@ -170,7 +170,7 @@ contract("Ledger", accounts => {
 		});
 	});
 
-  describe("Charge logic", function() {
+  describe("charge", function() {
     it("should not allow to charge if no allowances were set before", async () => {
 			const to = accounts[1];
 			const initialBalance = await web3.eth.getBalance(to);
@@ -404,6 +404,9 @@ contract("Ledger", accounts => {
 					gasPrice: 0
 				}
 			);
+
+			const tokenId = await ledger.tokenOfOwnerByIndex(to, 0).should.be.fulfilled;
+			assert.notEqual(tokenId.toNumber(),0);
 			
       let userBalance = await ledger.getDepositBalance.call();
       assert.equal(userBalance, depositAmount);
@@ -421,7 +424,9 @@ contract("Ledger", accounts => {
 				postBalance.toNumber()
 			);
 
-			// TODO: check that debit token is issued!
+			// check that additional allowance (plus interest) token is issued!
+			const tokenId2 = await ledger.tokenOfOwnerByIndex(to, 1).should.be.fulfilled;
+			assert.notEqual(tokenId2.toNumber(),0);
 		});
 
     it("should return FRACTION of amount if not enough money (with overdraft)", async () => {
@@ -453,6 +458,9 @@ contract("Ledger", accounts => {
       let userBalance = await ledger.getDepositBalance.call();
       assert.equal(userBalance, depositAmount);
 
+      let allowanceCount1 = await ledger.getAllowancesCount({from: to});
+      assert.equal(allowanceCount1.toNumber(), 1);
+
 			// more than AA, but less than AA + OD; but has only 800
 			const chargeAmount = 1.05 * 10 ** 18;
 			const shouldReturn = 0.8 * 10 ** 18;
@@ -466,7 +474,13 @@ contract("Ledger", accounts => {
 				postBalance.toNumber()
 			);
 
-			// TODO: check that debit token is issued!
+			// check that debit token is issued!
+			const tokenId2 = await ledger.tokenOfOwnerByIndex(to, 1).should.be.fulfilled;
+			assert.notEqual(tokenId2.toNumber(),0);
+
+			// check that allowance is issued as well
+      let allowanceCount = await ledger.getAllowancesCount({from: to});
+      assert.equal(allowanceCount.toNumber(), 2);
 		});
   });
 });
