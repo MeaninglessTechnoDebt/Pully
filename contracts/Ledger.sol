@@ -1,7 +1,9 @@
 pragma solidity ^0.4.24;
 
 import "./ILedger.sol";
+
 import "zeppelin-solidity/contracts/token/ERC721/ERC721Token.sol";
+import "zeppelin-solidity/contracts/math/SafeMath.sol";
 
 /*
 contract NFT is ERC721Token {
@@ -12,6 +14,8 @@ contract NFT is ERC721Token {
 */
 
 contract Ledger is ISideA, ISideB {
+	using SafeMath for uint256;
+
 	//NFT nft;
 
 	struct UserState {
@@ -73,7 +77,6 @@ contract Ledger is ISideA, ISideB {
 
 	function withdraw(uint _amountWei) public {
 		require(_amountWei <= getDepositBalance());
-		// TODO: use Safemath here
 		userState[msg.sender].currentBalance-=_amountWei;
 		msg.sender.transfer(_amountWei);
 	}
@@ -247,6 +250,7 @@ contract Ledger is ISideA, ISideB {
 		user2userState[msg.sender][_to].allowances.push(newErc721Id);
 	}
 
+	// send money from SideA -> SideB
 	function _charge(Allowance _a, uint _amountWanted) internal {
 		// get current sideA balance 
 		uint balance = userState[_a.sideA].currentBalance;
@@ -254,13 +258,15 @@ contract Ledger is ISideA, ISideB {
 		if(_amountWanted <= balance){
 			// just send money 
 			_a.sideB.transfer(_amountWanted);
-			// TODO: use SafeMath
 			userState[_a.sideA].currentBalance -= _amountWanted;
 		} else {
-			// TODO: 
-			// send money
+			// special outcome: if SideA has LESS money than SideB wants (and was allowed)
+			// 1 - send all avail money
+			_a.sideB.transfer(balance);
+			userState[_a.sideA].currentBalance = 0;
 			
-			// issue debt token
+			// TODO:
+			// 2 - issue debt token
 		}
 	}
 }

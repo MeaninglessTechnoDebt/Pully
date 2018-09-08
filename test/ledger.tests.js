@@ -279,7 +279,7 @@ contract("Ledger", accounts => {
 			);
 		});
 
-    it("should set isOverdrafted flag", async () => {
+    it("should return wanted amount if enough money", async () => {
 			const to = accounts[1];
 			const interestRate = 1 * 10 ** 5;
 			const numPeriods = 1;
@@ -322,6 +322,96 @@ contract("Ledger", accounts => {
 				initialBalance.toNumber() + chargeAmount,
 				postBalance.toNumber()
 			);
+		});
+
+    it("should return FRACTION of amount if not enough money (no overdraft)", async () => {
+			const to = accounts[1];
+			const interestRate = 1 * 10 ** 5;
+			const numPeriods = 1;
+			const startDate = new Date("09/09/2018").getTime() / 1000;
+			const initialBalance = await web3.eth.getBalance(to);
+
+			const overdraft = 0;	// 0% 
+			const amount = 1 * 10 ** 18;		// allow 1.000
+			const depositAmount = 0.8 * 10 ** 18;		  // but put 0.800
+
+			await ledger.allowAndDeposit(
+				to,
+				amount,
+				overdraft,
+				interestRate,
+				numPeriods,
+				DAY_IN_SECONDS,
+				startDate,
+				{
+					from: creator,
+					value: depositAmount,
+					gasPrice: 0
+				}
+			);
+			
+      let userBalance = await ledger.getDepositBalance.call();
+      assert.equal(userBalance, depositAmount);
+
+			// exactly AA, but has only 800
+			const chargeAmount = 1 * 10 ** 18;
+			const shouldReturn = 0.8 * 10 ** 18;
+			await ledger.charge(0, chargeAmount, { from: to, gasPrice: 0 });
+			const od2 = await ledger.isOverdrafted(creator, to);
+			assert.equal(od2, false);
+
+			const postBalance = await web3.eth.getBalance(to);
+			assert.equal(
+				initialBalance.toNumber() + shouldReturn,
+				postBalance.toNumber()
+			);
+
+			// TODO: check that debit token is issued!
+		});
+
+    it("should return FRACTION of amount if not enough money (with overdraft)", async () => {
+			const to = accounts[1];
+			const interestRate = 1 * 10 ** 5;
+			const numPeriods = 1;
+			const startDate = new Date("09/09/2018").getTime() / 1000;
+			const initialBalance = await web3.eth.getBalance(to);
+
+			const overdraft = 10 * 10 ** 5;	// 10%
+			const amount = 1 * 10 ** 18;		// allow 1.000
+			const depositAmount = 0.8 * 10 ** 18;		  // but put 0.800
+
+			await ledger.allowAndDeposit(
+				to,
+				amount,
+				overdraft,
+				interestRate,
+				numPeriods,
+				DAY_IN_SECONDS,
+				startDate,
+				{
+					from: creator,
+					value: depositAmount,
+					gasPrice: 0
+				}
+			);
+			
+      let userBalance = await ledger.getDepositBalance.call();
+      assert.equal(userBalance, depositAmount);
+
+			// more than AA, but less than AA + OD; but has only 800
+			const chargeAmount = 1.05 * 10 ** 18;
+			const shouldReturn = 0.8 * 10 ** 18;
+			await ledger.charge(0, chargeAmount, { from: to, gasPrice: 0 });
+			const od2 = await ledger.isOverdrafted(creator, to);
+			assert.equal(od2, true);
+
+			const postBalance = await web3.eth.getBalance(to);
+			assert.equal(
+				initialBalance.toNumber() + shouldReturn,
+				postBalance.toNumber()
+			);
+
+			// TODO: check that debit token is issued!
 		});
 
   });
