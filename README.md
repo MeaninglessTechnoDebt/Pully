@@ -15,10 +15,16 @@ npm run test
 ## TODO:
 1. * write basic tests for the getters/setters 
 1. * implement charge 
+
+1. * add ERC721 checks to tests
+1. "issue debt" scenario
+1. * implement dates/periods
 1. implement transferAllowance 
-1. add ERC721Token inheritance - not working currently because we are running out of gas ((((
+1. Dharma integration 
+1. DutchX integration
   
 1. implement editMyAllowance 
 1. implement all IUnderwriterSubsystem methods
 1. use SafeMath 
 1. write comments 
+

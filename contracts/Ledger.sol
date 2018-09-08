@@ -188,6 +188,11 @@ contract Ledger is ISideA, ISideB, ERC721Token("Pully","PULL") {
 		uint AA_with_OD = calculateAllowedPlusOverdraft(_index);
 		require(_amountWei <= AA_with_OD);
 
+		// 2 - check that startingDate is OK
+		require(block.timestamp >= a.startingDate);
+		require(block.timestamp < (a.startingDate + a.periodSeconds));
+
+		// 3 - go charge SideA!
 		if(_amountWei <= a.amountWei){
 			// if we are asking less than AA
 			_charge(a, _amountWei);
@@ -216,7 +221,6 @@ contract Ledger is ISideA, ISideB, ERC721Token("Pully","PULL") {
 							uint _periodSeconds, 
 							uint _startingDate) internal 
 	{
-		// TODO:
 		// 1 - issue new ERC721 token 
 		uint256 newErc721Id = uint(keccak256(msg.sender, _to, _startingDate, _periodSeconds ));		// TODO: generate new ID
 		ERC721Token._mint(_to, newErc721Id);

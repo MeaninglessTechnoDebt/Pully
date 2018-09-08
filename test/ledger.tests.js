@@ -6,36 +6,6 @@ require("chai")
   .use(require("chai-bignumber")(web3.BigNumber))
   .should();
 
-/*
-// Removed because wanted to use direct calls with await 
-// (it caused problems on my local machine...)
-function createAllowance(
-  ledger,
-  creator,
-  to,
-  amount,
-  interestRate,
-  overdraft,
-  numPeriods,
-  startDate,
-  depositAmount
-) {
-  ledger.allowAndDeposit(
-    to,
-    amount,
-    overdraft,
-    interestRate,
-    numPeriods,
-    DAY_IN_SECONDS,
-    startDate,
-    {
-      from: creator,
-      value: depositAmount
-    }
-  );
-}
-*/
-
 contract("Ledger", accounts => {
   let ledger;
   const creator = accounts[0];
@@ -71,6 +41,8 @@ contract("Ledger", accounts => {
       const startDate = new Date("09/09/2018").getTime() / 1000;
       const depositAmount = 0;
 
+			await ledger.tokenOfOwnerByIndex(to, 0).should.be.rejectedWith('revert');
+
 			await ledger.allowAndDeposit(
 		    to,
 		    amount,
@@ -101,6 +73,11 @@ contract("Ledger", accounts => {
         DAY_IN_SECONDS,
         startDate
       ]);
+
+			// check that ERC721 is minted
+			// WARNING: there are no means to get ERC721 info other than that...
+			const tokenId = await ledger.tokenOfOwnerByIndex(to, 0).should.be.fulfilled;
+			assert.notEqual(tokenId.toNumber(),0);
     });
 
     it("should create an allowance with a deposit", async () => {
@@ -144,6 +121,10 @@ contract("Ledger", accounts => {
 			]);
 			let userBalance = await ledger.getDepositBalance.call();
 			assert.equal(userBalance.toNumber(), depositAmount);
+
+			// check that ERC721 is minted
+			const tokenId = await ledger.tokenOfOwnerByIndex(to, 0).should.be.fulfilled;
+			assert.notEqual(tokenId.toNumber(),0);
     });
   });
 
@@ -233,12 +214,86 @@ contract("Ledger", accounts => {
 			// 0 is index into SideB's allowances
 			await ledger.charge(0, chargeAmount, { from: to }).should.be.rejectedWith('revert');
 		});
+
+    it("should not charge if startingDate is after now", async () => {
+			const to = accounts[1];
+			const interestRate = 1 * 10 ** 5;
+			const numPeriods = 1;
+      const startDate = (Date.now() / 1000) + DAY_IN_SECONDS;
+			const initialBalance = await web3.eth.getBalance(to);
+
+			const amount = 1000;
+			const overdraft = 10 * 10 ** 5;	// 10% 
+			const depositAmount = 1100;
+
+			await ledger.allowAndDeposit(
+				to,
+				amount,
+				overdraft,
+				interestRate,
+				numPeriods,
+				DAY_IN_SECONDS,
+				startDate,
+				{
+					from: creator,
+					value: depositAmount,
+					gasPrice: 0
+				}
+			);
+
+      let allowanceCount = await ledger.getAllowancesCount({from: to});
+      assert.equal(allowanceCount.toNumber(), 1);
+			
+			const od1 = await ledger.isOverdrafted(creator, to);
+			assert.equal(od1, false);
+
+			// exactly AA
+			const chargeAmount = 1000;
+			await ledger.charge(0, chargeAmount, { from: to, gasPrice: 0 }).should.be.rejectedWith('revert');
+		});
+
+    it("should not charge if startingDate is before the end", async () => {
+			const to = accounts[1];
+			const interestRate = 1 * 10 ** 5;
+			const numPeriods = 1;
+      const startDate = (Date.now() / 1000) - 2 * DAY_IN_SECONDS;
+			const initialBalance = await web3.eth.getBalance(to);
+
+			const amount = 1000;
+			const overdraft = 10 * 10 ** 5;	// 10% 
+			const depositAmount = 1100;
+
+			await ledger.allowAndDeposit(
+				to,
+				amount,
+				overdraft,
+				interestRate,
+				numPeriods,
+				DAY_IN_SECONDS,
+				startDate,
+				{
+					from: creator,
+					value: depositAmount,
+					gasPrice: 0
+				}
+			);
+
+      let allowanceCount = await ledger.getAllowancesCount({from: to});
+      assert.equal(allowanceCount.toNumber(), 1);
+			
+			const od1 = await ledger.isOverdrafted(creator, to);
+			assert.equal(od1, false);
+
+			// exactly AA
+			const chargeAmount = 1000;
+			await ledger.charge(0, chargeAmount, { from: to, gasPrice: 0 }).should.be.rejectedWith('revert');
+		});
 		
     it("should set isOverdrafted flag", async () => {
 			const to = accounts[1];
 			const interestRate = 1 * 10 ** 5;
 			const numPeriods = 1;
-			const startDate = new Date("09/09/2018").getTime() / 1000;
+      const startDate = Date.now() / 1000;
 			const initialBalance = await web3.eth.getBalance(to);
 
 			const amount = 1 * 10 ** 18;
@@ -283,7 +338,7 @@ contract("Ledger", accounts => {
 			const to = accounts[1];
 			const interestRate = 1 * 10 ** 5;
 			const numPeriods = 1;
-			const startDate = new Date("09/09/2018").getTime() / 1000;
+      const startDate = Date.now() / 1000;
 			const initialBalance = await web3.eth.getBalance(to);
 
 			const amount = 1000;
@@ -328,7 +383,7 @@ contract("Ledger", accounts => {
 			const to = accounts[1];
 			const interestRate = 1 * 10 ** 5;
 			const numPeriods = 1;
-			const startDate = new Date("09/09/2018").getTime() / 1000;
+      const startDate = Date.now() / 1000;
 			const initialBalance = await web3.eth.getBalance(to);
 
 			const overdraft = 0;	// 0% 
@@ -373,7 +428,7 @@ contract("Ledger", accounts => {
 			const to = accounts[1];
 			const interestRate = 1 * 10 ** 5;
 			const numPeriods = 1;
-			const startDate = new Date("09/09/2018").getTime() / 1000;
+      const startDate = Date.now() / 1000;
 			const initialBalance = await web3.eth.getBalance(to);
 
 			const overdraft = 10 * 10 ** 5;	// 10%
@@ -413,6 +468,5 @@ contract("Ledger", accounts => {
 
 			// TODO: check that debit token is issued!
 		});
-
   });
 });
