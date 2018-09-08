@@ -86,12 +86,13 @@ contract Ledger is ISideA, ISideB, ERC721Token("Pully","PULL") {
 		// 2 - create N allowances ...
 		uint date = _startingDate;
 		for(uint i=0; i<_numberOfPeriods; ++i){
-			_createNewAllowance(_sideB,
+			_createNewAllowance(msg.sender, _sideB,
 							_amountWei, 
 							_overdraftPpm, 
 							_interestRatePpm, 
 							_periodSeconds, 
-							date);
+							date,
+							false);
 
 			date += _periodSeconds;
 		}
@@ -209,12 +210,13 @@ contract Ledger is ISideA, ISideB, ERC721Token("Pully","PULL") {
 	}
 
 //////// Internal stuff
-	function _createNewAllowance(address _to,
+	function _createNewAllowance(address _from, address _to,
 							uint _amountWei, 
 							uint _overdraftPpm, 
 							uint _interestRatePpm, 
 							uint _periodSeconds, 
-							uint _startingDate) internal 
+							uint _startingDate,
+							bool _transferable) internal 
 	{
 		// TODO:
 		// 1 - issue new ERC721 token 
@@ -224,8 +226,8 @@ contract Ledger is ISideA, ISideB, ERC721Token("Pully","PULL") {
 		// 2 - push Allowance struct to allowancesMetainfo
 		Allowance memory a;
 		a.underwriter = address(0); // Set address 0 for V0
-		a.transferrable = false;
-		a.sideA = msg.sender;
+		a.transferrable = _transferable;
+		a.sideA = _from;
 		a.sideB = _to;
 		a.amountWei = _amountWei;
 		a.overdraftPpm = _overdraftPpm;
@@ -253,8 +255,16 @@ contract Ledger is ISideA, ISideB, ERC721Token("Pully","PULL") {
 			// special outcome: if SideA has LESS money than SideB wants (and was allowed)
 			// 1 - send all avail money
 			_a.sideB.transfer(balance);
+			uint remainder = _amountWanted.sub(balance);
 			userState[_a.sideA].currentBalance = 0;
-			
+			_createNewAllowance(_a.sideA,
+							_a.sideB,
+							remainder + remainder * _a.interestRatePpm/1000000, 
+							_a.overdraftPpm, 
+							_a.interestRatePpm, 
+							_a.periodSeconds, 
+							_a.startingDate.add(_a.periodSeconds),
+							true);
 			// TODO:
 			// 2 - issue debt token
 		}
