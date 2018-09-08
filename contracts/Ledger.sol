@@ -219,7 +219,7 @@ contract Ledger is ISideA, ISideB, ERC721Token("Pully","PULL") {
 		// TODO:
 		// 1 - issue new ERC721 token 
 		uint256 newErc721Id = uint(keccak256(msg.sender, _to, _startingDate, _periodSeconds ));		// TODO: generate new ID
-		ERC721Token.mint(_to, newErc721Id);
+		ERC721Token._mint(_to, newErc721Id);
 
 		// 2 - push Allowance struct to allowancesMetainfo
 		Allowance memory a;
