@@ -2,7 +2,10 @@ pragma solidity ^0.4.24;
 
 import "./IUnderwriterSubsystem.sol";
 
-contract UnderwriterSubsystem is IUnderwriterSubsystem {
+import "@thetta/core/contracts/DaoClient.sol";
+import "@thetta/core/contracts/DaoBase.sol";
+
+contract UnderwriterSubsystem is IUnderwriterSubsystem, DaoClient {
 	address[] underwriters;
 
 	struct RequestForUnderwriter {
@@ -15,8 +18,14 @@ contract UnderwriterSubsystem is IUnderwriterSubsystem {
 	event BecomeAnUnderwriter(address _underwriter);
 	event RequestedUnderwriter(uint _indexInArray, address _underwriterAddress, uint256 _infoIpfsHash, uint _requestIndex);
 
+	bytes32 public constant BECOME_UNDERWRITER = keccak256("BECOME_UNDERWRITER");
+
+	constructor(DaoBase _dao) DaoClient(_dao) {
+
+	}
+
 // 1 - to become a moderator
-	function becomeAnUnderwriter()public{
+	function becomeAnUnderwriter()public isCanDo(BECOME_UNDERWRITER){
 		// TODO: check if already in the list)
 
 		underwriters.push(msg.sender);
