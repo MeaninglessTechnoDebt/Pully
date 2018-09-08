@@ -5,6 +5,13 @@ import "./ILedger.sol";
 import "zeppelin-solidity/contracts/token/ERC721/ERC721Token.sol";
 import "zeppelin-solidity/contracts/math/SafeMath.sol";
 
+
+/**
+ * @title Ledger 
+ * @dev Main MeaninglessTechnoDebt/TechnoDebit contract. 
+ * Check TechReqs here:
+ * https://docs.google.com/document/d/1pQy_FLmfn-ToRTYN7v-xtg1LsAVGXrNsgbfozeCWV9A/edit?usp=sharing
+ */
 contract Ledger is ISideA, ISideB, ERC721Token("Pully","PULL") {
 	using SafeMath for uint256;
 
@@ -28,9 +35,8 @@ contract Ledger is ISideA, ISideB, ERC721Token("Pully","PULL") {
 		// (sell it or put into collateral)
 		bool transferrable;
 
-		// TODO: transfering ERC721 should update THIS !!!
 		address sideA;
-		address sideB;
+		address sideB; // transfering ERC721 will update THIS !!!
 		uint amountWei;
 		uint overdraftPpm;
 		uint interestRatePpm;
@@ -53,24 +59,38 @@ contract Ledger is ISideA, ISideB, ERC721Token("Pully","PULL") {
 	// ERC721 id -> Allowance (main storage of all allowances)
 	mapping (uint256=>Allowance) allowancesMetainfo;
 
-////////////////////////////////////////////////////////////////////////////////////
+	////////////////////////////////////////////////////////////////////////////////////
 	constructor() public {
 	}
 
+	/**
+	* @dev Put some ETHer in
+	*/
 	function deposit() public payable{
 		userState[msg.sender].currentBalance += msg.value;
 	}
 
+	/**
+	* @dev Get your current ETH balance 
+	* @return amount in WEIs
+	*/
 	function getDepositBalance() public view returns(uint) {
 		return userState[msg.sender].currentBalance;
 	}
 
+	/**
+	* @dev Return back your ETHs if you deposited before 
+	* @param _amountWei Amount to get back 
+	*/
 	function withdraw(uint _amountWei) public {
 		require(_amountWei <= getDepositBalance());
 		userState[msg.sender].currentBalance-=_amountWei;
 		msg.sender.transfer(_amountWei);
 	}
 
+	/**
+	* @dev Add an allowance AND put deposit (can be zero!)
+	*/
 	function allowAndDeposit(
 		address _sideB, 
 		uint _amountWei, 
@@ -86,24 +106,33 @@ contract Ledger is ISideA, ISideB, ERC721Token("Pully","PULL") {
 		// 2 - create N allowances ...
 		uint date = _startingDate;
 		for(uint i=0; i<_numberOfPeriods; ++i){
-			_createNewAllowance(msg.sender, _sideB,
-							_amountWei, 
-							_overdraftPpm, 
-							_interestRatePpm, 
-							_periodSeconds, 
-							date,
-							false);
+			_createNewAllowance(
+				msg.sender, 
+				_sideB,
+				_amountWei, 
+				_overdraftPpm, 
+				_interestRatePpm, 
+				_periodSeconds, 
+				date,
+				false);
 
 			date += _periodSeconds;
 		}
 	}
 
+	/**
+	* @dev Returns number of my allowances (that i set before for SideB)
+	*/
 	function getMyAllowancesCount() public view returns(uint){
 		return userState[msg.sender].allAllowances.length;
 	}
 
+	/**
+	* @dev Return allowance data (enumerator)
+	* @param _index Current alowance index (in terms of SideA). Use getMyAllowancesCount() to get total count
+	*/
 	function getMyAllowanceInfo(uint _index) public 
-		view returns(address sideB, uint amountWei, uint overdraftPpm, uint interestRatePpm, uint periodSeconds, uint startingDate)
+	view returns(address sideB, uint amountWei, uint overdraftPpm, uint interestRatePpm, uint periodSeconds, uint startingDate, bool isDebt)
 	{
 		uint256 erc721id = userState[msg.sender].allAllowances[_index];
 		Allowance a = allowancesMetainfo[erc721id];
@@ -114,9 +143,14 @@ contract Ledger is ISideA, ISideB, ERC721Token("Pully","PULL") {
 		interestRatePpm = a.interestRatePpm;
 		periodSeconds = a.periodSeconds;
 		startingDate = a.startingDate;
+		// if allowance is transferrable -> it was generated because we have debt (see _charge method)
+		isDebt = (a.transferrable==true);
 	}
 
-	// edit each allowance manually 
+	/**
+	* @dev Edit each allowance manually 
+	* @param _index Current alowance index (in terms of SideA). Use getMyAllowancesCount() to get total count
+	*/
 	function editMyAllowance(
 		uint _index, 
 		uint _amountWei, 
@@ -125,27 +159,49 @@ contract Ledger is ISideA, ISideB, ERC721Token("Pully","PULL") {
 		uint _periodSeconds, 
 		uint _startingDate) public 
 	{
-		// TODO: left for the future version
+		uint256 erc721id = userState[msg.sender].allAllowances[_index];
+
+		require(allowancesMetainfo[erc721id].sideA==msg.sender);
+
+		allowancesMetainfo[erc721id].amountWei = _amountWei;
+		allowancesMetainfo[erc721id].overdraftPpm = _overdraftPpm;
+		allowancesMetainfo[erc721id].interestRatePpm = _interestRatePpm;
+		allowancesMetainfo[erc721id].periodSeconds = _periodSeconds;
+		allowancesMetainfo[erc721id].startingDate = _startingDate;
 	}
 
-// 3 - overdrafted flag
-	// if you have asked for more than current AllowedAmount and less than AllowedAmount + overdraft
+	// 3 - overdrafted flag
+	/**
+	* @dev If you have asked for more than current AllowedAmount and less than AllowedAmount + overdraft
+	* @param _sideA Who deposited money 
+	* @param _sideB Who withdraws
+	*/
 	function isOverdrafted(address _sideA, address _sideB) public view returns(bool){
 		return user2userState[_sideA][_sideB].isOverdrafted;
 	}
 
-	// should be called by the SideA for the SideB
+	/**
+	* @dev If SideB has overdrafted -> it can no longer withdraw without SideA calling 'clearOverdraftedFlag'.
+	* Should be called by the SideA for the SideB
+		*/
 	function clearOverdraftedFlag(address _sideB) public {
 		user2userState[msg.sender][_sideB].isOverdrafted = false;
 	}
 
-// SideB
+	// SideB
+	/**
+	* @dev Get the number of allowances that were set by other people for me
+	*/
 	function getAllowancesCount() public view returns(uint){
 		return userState[msg.sender].allAllowancesFrom.length;
 	}
 
+	/**
+	* @dev Return allowance data for SideB (enumerator)
+	* @param _index Current alowance index (in terms of SideB). Use getAllowancesCount() to get total count
+	*/
 	function getAllowanceInfo(uint _index) public 
-		view returns(address sideA, uint amountWei, uint overdraftPpm, uint interestRatePpm, uint periodSeconds, uint startingDate)
+	view returns(address sideA, uint amountWei, uint overdraftPpm, uint interestRatePpm, uint periodSeconds, uint startingDate, bool isDebt)
 	{
 		require(_index < getAllowancesCount());
 
@@ -158,9 +214,16 @@ contract Ledger is ISideA, ISideB, ERC721Token("Pully","PULL") {
 		interestRatePpm = a.interestRatePpm;
 		periodSeconds = a.periodSeconds;
 		startingDate = a.startingDate;
+		// if allowance is transferrable -> it was generated because we have debt (see _charge method)
+		isDebt = (a.transferrable==true);
 	}
 
-	// only for 'transferrable allowances' that were generated automatically in case of overdraft
+	/**
+	* @dev Transfer allowance to the other account.
+	* Only for 'transferrable allowances' that were generated automatically in case of overdraft
+	* @param _index Current alowance index (in terms of SideB). Use getAllowancesCount() to get total count
+	* @param _to Who is gonna receive the ERC721 right + will be able to withdraw
+	*/
 	function transferAllowance(uint _index, address _to) public {
 		require(_index < getAllowancesCount());
 
@@ -199,6 +262,7 @@ contract Ledger is ISideA, ISideB, ERC721Token("Pully","PULL") {
 		// connect it A -> TO
 		user2userState[a.sideA][_to].allowances.push(erc721id);
 	}
+
 
 	// Function to comply with dharma debt token, like the function above needs refactor
 	function transferFrom(address _from, address _to, uint erc721id  ) public{
@@ -240,9 +304,13 @@ contract Ledger is ISideA, ISideB, ERC721Token("Pully","PULL") {
 		user2userState[a.sideA][_to].allowances.push(erc721id);
 	}
 
-	// will either return money OR 
-	// will return money + generate new allowance (plus interested) to the SideB (me)
-	// _index is index in the SideB's allowances
+	
+	/**
+	* @dev Will either return money OR will return money + generate new allowance (plus interested) to the SideB (me)
+	* @param _index Current alowance index (in terms of SideB). Use getAllowancesCount() to get total count
+	* @param _amountWei Should be less than AllowedAmount + OverDraft
+	*/
+
 	function charge(uint _index, uint _amountWei) public {
 		require(_index < getAllowancesCount());
 
@@ -271,7 +339,10 @@ contract Ledger is ISideA, ISideB, ERC721Token("Pully","PULL") {
 		}
 	}
 
-	// _index is a SideB's allowance index
+	/**
+	* @dev Calculate how much you can withdraw (as a SideB)
+	* @param _index is a SideB's allowance index
+	*/
 	function calculateAllowedPlusOverdraft(uint _index) public view returns(uint){
 		require(_index < getAllowancesCount());
 
@@ -280,17 +351,19 @@ contract Ledger is ISideA, ISideB, ERC721Token("Pully","PULL") {
 		return a.amountWei + ((a.amountWei * a.overdraftPpm) / 10000000);
 	}
 
-//////// Internal stuff
-	function _createNewAllowance(address _from, address _to,
-							uint _amountWei, 
-							uint _overdraftPpm, 
-							uint _interestRatePpm, 
-							uint _periodSeconds, 
-							uint _startingDate,
-							bool _transferable) internal 
-	{
+	//////// Internal stuff
+	function _createNewAllowance(
+		address _from, 
+		address _to,
+		uint _amountWei, 
+		uint _overdraftPpm, 
+		uint _interestRatePpm, 
+		uint _periodSeconds, 
+		uint _startingDate,
+		bool _transferable) internal 
+	 {
 		// 1 - issue new ERC721 token 
-		uint256 newErc721Id = uint(keccak256(msg.sender, _to, _startingDate, _periodSeconds ));		// TODO: generate new ID
+		uint256 newErc721Id = uint(keccak256(msg.sender, _to, _startingDate, _periodSeconds ));
 		ERC721Token._mint(_to, newErc721Id);
 
 		// 2 - push Allowance struct to allowancesMetainfo
@@ -308,36 +381,36 @@ contract Ledger is ISideA, ISideB, ERC721Token("Pully","PULL") {
 
 		userState[msg.sender].allAllowances.push(newErc721Id);
 		userState[_to].allAllowancesFrom.push(newErc721Id);
-		
-		user2userState[msg.sender][_to].allowances.push(newErc721Id);
-	}
 
-	// send money from SideA -> SideB
-	function _charge(Allowance _a, uint _amountWanted) internal {
-		// get current sideA balance 
+		user2userState[msg.sender][_to].allowances.push(newErc721Id);
+	 }
+
+	 // send money from SideA -> SideB
+	 function _charge(Allowance _a, uint _amountWanted) internal {
+		// 1 - get current sideA balance 
 		uint balance = userState[_a.sideA].currentBalance;
 
 		if(_amountWanted <= balance){
-			// just send money 
+			// 2 - just send money 
 			_a.sideB.transfer(_amountWanted);
 			userState[_a.sideA].currentBalance -= _amountWanted;
-		} else {
-			// special outcome: if SideA has LESS money than SideB wants (and was allowed)
-			// 1 - send all avail money
+		 } else {
+			 // special outcome: if SideA has LESS money than SideB wants (and was allowed)
+			 // 3 - send all avail money
 			_a.sideB.transfer(balance);
 			uint remainder = _amountWanted.sub(balance);
 			userState[_a.sideA].currentBalance = 0;
 
-			// 2 - create new allowance (plus interest!!!) and transfer it to SideB 
+			// 4 - create new allowance (plus interest!!!) and transfer it to SideB 
 			_createNewAllowance(
-							_a.sideA,
-							_a.sideB,
-							remainder + remainder * _a.interestRatePpm/1000000, 
-							_a.overdraftPpm, 
-							_a.interestRatePpm, 
-							_a.periodSeconds, 
-							_a.startingDate.add(_a.periodSeconds),
-							true);
-		}
-	}
+				_a.sideA,
+				_a.sideB,
+				remainder + remainder * _a.interestRatePpm/1000000, 
+				_a.overdraftPpm, 
+				_a.interestRatePpm, 
+				_a.periodSeconds, 
+				_a.startingDate.add(_a.periodSeconds),
+				 true);
+		 }
+	 }
 }
