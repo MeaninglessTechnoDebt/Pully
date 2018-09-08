@@ -2,7 +2,7 @@ pragma solidity ^0.4.24;
 
 contract IUnderwriterSubsystem {
 // 1 - to become a moderator
-	function wantToBecomeUnderwriter()public;
+	function becomeAnUnderwriter()public;
 
 // 2 - enumerate
 	function getUnderwritersCount()public view returns(uint count);
