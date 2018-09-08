@@ -13,12 +13,7 @@ npm run test
 ```
 
 ## TODO:
-1. * write basic tests for the getters/setters 
-1. * implement charge 
-1. * add ERC721 checks to tests
-1. * "issue debt" scenario
-1. * implement dates/periods
-1. implement transferAllowance 
+1. * implement transferAllowance 
 1. Dharma integration 
 1. DutchX integration
   

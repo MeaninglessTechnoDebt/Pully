@@ -483,4 +483,115 @@ contract("Ledger", accounts => {
       assert.equal(allowanceCount.toNumber(), 2);
 		});
   });
+
+  describe("transferAllowance", function() {
+    it("should not transer if no allowances", async () => {
+			const to = accounts[1];
+			const extraGuy = accounts[2];
+			ledger.transferAllowance(0, extraGuy, {from: to}).should.be.rejectedWith('revert');
+		});
+
+    it("should not allow to transer if not transferrable", async () => {
+			const to = accounts[1];
+			const extraGuy = accounts[2];
+
+			const interestRate = 1 * 10 ** 5;
+			const numPeriods = 1;
+      const startDate = Date.now() / 1000;
+			const initialBalance = await web3.eth.getBalance(to);
+
+			const amount = 1000;
+			const overdraft = 10 * 10 ** 5;	// 10% 
+			const depositAmount = 1100;
+
+			await ledger.allowAndDeposit(
+				to,
+				amount,
+				overdraft,
+				interestRate,
+				numPeriods,
+				DAY_IN_SECONDS,
+				startDate,
+				{
+					from: creator,
+					value: depositAmount,
+					gasPrice: 0
+				}
+			);
+
+      let allowanceCount = await ledger.getAllowancesCount({from: to});
+      assert.equal(allowanceCount.toNumber(), 1);
+
+			// try to transfer it
+			ledger.transferAllowance(0, extraGuy, {from: to}).should.be.rejectedWith('revert');
+		});
+
+    it("should transfer additional allowance", async () => {
+			const to = accounts[1];
+			const extraGuy = accounts[2];
+
+			const interestRate = 1 * 10 ** 5;
+			const numPeriods = 1;
+      const startDate = Date.now() / 1000;
+			const initialBalance = await web3.eth.getBalance(to);
+
+			const overdraft = 0;	// 0% 
+			const amount = 1 * 10 ** 18;		// allow 1.000
+			const depositAmount = 0.8 * 10 ** 18;		  // but put 0.800
+
+			await ledger.allowAndDeposit(
+				to,
+				amount,
+				overdraft,
+				interestRate,
+				numPeriods,
+				DAY_IN_SECONDS,
+				startDate,
+				{
+					from: creator,
+					value: depositAmount,
+					gasPrice: 0
+				}
+			);
+
+			const tokenId = await ledger.tokenOfOwnerByIndex(to, 0).should.be.fulfilled;
+			assert.notEqual(tokenId.toNumber(),0);
+			
+      let userBalance = await ledger.getDepositBalance.call();
+      assert.equal(userBalance, depositAmount);
+
+			// exactly AA, but has only 800
+			const chargeAmount = 1 * 10 ** 18;
+			const shouldReturn = 0.8 * 10 ** 18;
+			await ledger.charge(0, chargeAmount, { from: to, gasPrice: 0 });
+			const od2 = await ledger.isOverdrafted(creator, to);
+			assert.equal(od2, false);
+
+			const postBalance = await web3.eth.getBalance(to);
+			assert.equal(
+				initialBalance.toNumber() + shouldReturn,
+				postBalance.toNumber()
+			);
+
+			// check that additional allowance (plus interest) token is issued!
+			const tokenId2 = await ledger.tokenOfOwnerByIndex(to, 1).should.be.fulfilled;
+			assert.notEqual(tokenId2.toNumber(),0);
+
+      const allowanceCount2before = await ledger.getAllowancesCount({from: extraGuy});
+      assert.equal(allowanceCount2before.toNumber(), 0);
+
+			// transfer 
+			ledger.transferAllowance(1, extraGuy, {from: to}).should.be.fulfilled;
+
+			// do additional checks
+			const tokenIdExtra = await ledger.tokenOfOwnerByIndex(extraGuy, 0).should.be.fulfilled;
+			assert.notEqual(tokenIdExtra.toNumber(),0);
+
+      const allowanceCount1 = await ledger.getAllowancesCount({from: to});
+      assert.equal(allowanceCount1.toNumber(), 2);
+
+      const allowanceCount2 = await ledger.getAllowancesCount({from: extraGuy});
+      assert.equal(allowanceCount2.toNumber(), 1);
+		});
+	});
 });

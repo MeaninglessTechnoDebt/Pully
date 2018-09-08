@@ -168,10 +168,36 @@ contract Ledger is ISideA, ISideB, ERC721Token("Pully","PULL") {
 		Allowance a = allowancesMetainfo[erc721id];
 		require(a.transferrable);
 
-		// TODO:
 		// 1 - move ERC721 token to _to address 
+		safeTransferFrom(msg.sender, _to, erc721id);
 
 		// 2 - change all internal structs 
+		// 2.1 allowancesMetainfo 
+		allowancesMetainfo[erc721id].sideB = _to;
+
+		// 2.2 userState 
+		// remove allowance from msg.sender 
+		// TODO: very shitty loop!
+		for(uint i=0; i<userState[msg.sender].allAllowancesFrom.length; ++i){
+			if(userState[msg.sender].allAllowancesFrom[i]==erc721id){
+				userState[msg.sender].allAllowancesFrom[i] = 0;
+			}
+		}
+
+		// add allowance to _to
+		userState[_to].allAllowancesFrom.push(erc721id);
+
+		// 2.3 user2userState 
+		// TODO: very shitty loop!
+		for(i=0; i<user2userState[a.sideA][msg.sender].allowances.length; ++i){
+			if(user2userState[a.sideA][msg.sender].allowances[i]==erc721id){
+				// remove it from A -> B
+				user2userState[a.sideA][msg.sender].allowances[i] = 0;
+			}
+		}
+
+		// connect it A -> TO
+		user2userState[a.sideA][_to].allowances.push(erc721id);
 	}
 
 	// will either return money OR 
@@ -263,7 +289,8 @@ contract Ledger is ISideA, ISideB, ERC721Token("Pully","PULL") {
 			userState[_a.sideA].currentBalance = 0;
 
 			// 2 - create new allowance (plus interest!!!) and transfer it to SideB 
-			_createNewAllowance(_a.sideA,
+			_createNewAllowance(
+							_a.sideA,
 							_a.sideB,
 							remainder + remainder * _a.interestRatePpm/1000000, 
 							_a.overdraftPpm, 
