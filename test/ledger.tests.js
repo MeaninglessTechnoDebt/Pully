@@ -16,23 +16,21 @@ contract("Ledger", accounts => {
 		ledger = await Ledger.new();
 	});
 
-	describe("Basic getters and setters", function() {
-		it("should deposit eth to contract and alter user state", async () => {
+	describe("ledger", function() {
+		it("should allow to deposit eth to contract and alter user state", async () => {
 			ledger.deposit({ from: creator, value: 1 * 10 ** 18 });
 			let userBalance = await ledger.getDepositBalance.call();
 			assert.equal(userBalance, 1 * 10 ** 18);
 		});
 
-		it("should withdraw eth and alter state", async () => {
+		it("should allow to withdraw eth and alter state", async () => {
 			ledger.deposit({ from: creator, value: 1 * 10 ** 18 });
 			ledger.withdraw(1 * 10 ** 18, { from: creator });
 			let userBalance = await ledger.getDepositBalance.call();
 			assert.equal(userBalance, 0);
 		});
-	});
 
-	describe("Creating allowances", function() {
-		it("should create an allowance with no deposit", async () => {
+		it("should allow to create an allowance with no deposit", async () => {
 			const to = accounts[1];
 			const amount = 1 * 10 ** 18;
 			const interestRate = 1 * 10 ** 5;
@@ -82,7 +80,7 @@ contract("Ledger", accounts => {
 			assert.notEqual(tokenId.toNumber(),0);
 		});
 
-		it("should create an allowance with a deposit", async () => {
+		it("should allow to create an allowance with a deposit", async () => {
 			const to = accounts[1];
 			const amount = 1 * 10 ** 18;
 			const interestRate = 1 * 10 ** 5;

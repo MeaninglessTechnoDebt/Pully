@@ -159,7 +159,15 @@ contract Ledger is ISideA, ISideB, ERC721Token("Pully","PULL") {
 		uint _periodSeconds, 
 		uint _startingDate) public 
 	{
-		// TODO: left for the future version
+		uint256 erc721id = userState[msg.sender].allAllowances[_index];
+
+		require(allowancesMetainfo[erc721id].sideA==msg.sender);
+
+		allowancesMetainfo[erc721id].amountWei = _amountWei;
+		allowancesMetainfo[erc721id].overdraftPpm = _overdraftPpm;
+		allowancesMetainfo[erc721id].interestRatePpm = _interestRatePpm;
+		allowancesMetainfo[erc721id].periodSeconds = _periodSeconds;
+		allowancesMetainfo[erc721id].startingDate = _startingDate;
 	}
 
 	// 3 - overdrafted flag
