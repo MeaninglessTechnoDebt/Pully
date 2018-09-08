@@ -43,7 +43,7 @@ contract Ledger is ISideA, ISideB {
 		uint periodSeconds;
 		uint startingDate;
 
-		uint erc721tokenId;
+		//uint erc721tokenId;//Why?
 	}
 
 	struct UserToUserState {
@@ -193,11 +193,21 @@ contract Ledger is ISideA, ISideB {
 	{
 		// TODO:
 		// 1 - issue new ERC721 token 
-		uint256 newErc721Id = 0x0;		// TODO: generate new ID
+		uint256 newErc721Id = uint(keccak256(msg.sender, _to, _startingDate, _periodSeconds ));		// TODO: generate new ID
 		//nft.mint(_to, newId);
 
 		// 2 - push Allowance struct to allowancesMetainfo
-		Allowance a;
+		Allowance memory a;
+		a.underwriter = address(0); // Set address 0 for V0
+		a.transferrable = false;
+		a.sideA = msg.sender;
+		a.sideB = _to;
+		a.amountWei = _amountWei;
+		a.overdraftPpm = _overdraftPpm;
+		a.interestRatePpm = _interestRatePpm;
+		a.periodSeconds = _periodSeconds;
+		a.startingDate = _startingDate;
+		//a.erc721tokenId = newErc721Id;
 		allowancesMetainfo[newErc721Id] = a;
 
 		userState[msg.sender].allAllowances.push(newErc721Id);
