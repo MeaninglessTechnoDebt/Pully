@@ -5,18 +5,8 @@ import "./ILedger.sol";
 import "zeppelin-solidity/contracts/token/ERC721/ERC721Token.sol";
 import "zeppelin-solidity/contracts/math/SafeMath.sol";
 
-/*
-contract NFT is ERC721Token {
-	constructor NFT() public ERC721Token("MTDA", "MTD"){
-
-	}
-}
-*/
-
-contract Ledger is ISideA, ISideB {
+contract Ledger is ISideA, ISideB, ERC721Token("Pully","PULL") {
 	using SafeMath for uint256;
-
-	//NFT nft;
 
 	struct UserState {
 		uint currentBalance;
@@ -229,7 +219,7 @@ contract Ledger is ISideA, ISideB {
 		// TODO:
 		// 1 - issue new ERC721 token 
 		uint256 newErc721Id = uint(keccak256(msg.sender, _to, _startingDate, _periodSeconds ));		// TODO: generate new ID
-		//nft.mint(_to, newId);
+		ERC721Token.mint(_to, newErc721Id);
 
 		// 2 - push Allowance struct to allowancesMetainfo
 		Allowance memory a;
