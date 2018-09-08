@@ -47,6 +47,8 @@ contract ISideB {
 	// will either return money OR 
 	// will return money + generate new allowance (plus interested) to the SideB (me)
 	function charge(uint _index, uint _amountWei) public;
+
+	function calculateAllowedPlusOverdraft(uint _index) public view returns(uint);
 }
 
 contract IUnderwriterSubsystem {

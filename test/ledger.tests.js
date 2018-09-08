@@ -6,6 +6,9 @@ require("chai")
   .use(require("chai-bignumber")(web3.BigNumber))
   .should();
 
+/*
+// Removed because wanted to use direct calls with await 
+// (it caused problems on my local machine...)
 function createAllowance(
   ledger,
   creator,
@@ -31,6 +34,7 @@ function createAllowance(
     }
   );
 }
+*/
 
 contract("Ledger", accounts => {
   let ledger;
@@ -66,17 +70,21 @@ contract("Ledger", accounts => {
       const numPeriods = 2;
       const startDate = new Date("09/09/2018").getTime() / 1000;
       const depositAmount = 0;
-      createAllowance(
-        ledger,
-        creator,
-        to,
-        amount,
-        interestRate,
-        overdraft,
-        numPeriods,
-        startDate,
-        depositAmount
-      );
+
+			await ledger.allowAndDeposit(
+		    to,
+		    amount,
+		    overdraft,
+		    interestRate,
+		    numPeriods,
+		    DAY_IN_SECONDS,
+		    startDate,
+		    {
+			    from: creator,
+			    value: depositAmount
+		    }
+	    );
+
       let allowanceCount = await ledger.getMyAllowancesCount.call();
       assert.equal(allowanceCount.toNumber(), numPeriods);
       let createdAllowance = await ledger.getMyAllowanceInfo(0);
@@ -103,66 +111,218 @@ contract("Ledger", accounts => {
       const numPeriods = 2;
       const startDate = new Date("09/09/2018").getTime() / 1000;
       const depositAmount = 1 * 10 ** 18;
-      createAllowance(
-        ledger,
-        creator,
-        to,
-        amount,
-        interestRate,
-        overdraft,
-        numPeriods,
-        startDate,
-        depositAmount
-      );
-      let allowanceCount = await ledger.getMyAllowancesCount.call();
-      assert.equal(allowanceCount.toNumber(), numPeriods);
-      let createdAllowance = await ledger.getMyAllowanceInfo(0);
-      createdAllowance[1] = createdAllowance[1].toNumber();
-      createdAllowance[2] = createdAllowance[2].toNumber();
-      createdAllowance[3] = createdAllowance[3].toNumber();
-      createdAllowance[4] = createdAllowance[4].toNumber();
-      createdAllowance[5] = createdAllowance[5].toNumber();
-      assert.deepEqual(createdAllowance, [
-        to,
-        amount,
-        overdraft,
-        interestRate,
-        DAY_IN_SECONDS,
-        startDate
-      ]);
-      let userBalance = await ledger.getDepositBalance.call();
-      assert.equal(userBalance.toNumber(), depositAmount);
+
+			await ledger.allowAndDeposit(
+				to,
+				amount,
+				overdraft,
+				interestRate,
+				numPeriods,
+				DAY_IN_SECONDS,
+				startDate,
+				{
+					from: creator,
+					value: depositAmount
+				}
+			);
+
+			let allowanceCount = await ledger.getMyAllowancesCount.call();
+			assert.equal(allowanceCount.toNumber(), numPeriods);
+			let createdAllowance = await ledger.getMyAllowanceInfo(0);
+			createdAllowance[1] = createdAllowance[1].toNumber();
+			createdAllowance[2] = createdAllowance[2].toNumber();
+			createdAllowance[3] = createdAllowance[3].toNumber();
+			createdAllowance[4] = createdAllowance[4].toNumber();
+			createdAllowance[5] = createdAllowance[5].toNumber();
+			assert.deepEqual(createdAllowance, [
+				to,
+				amount,
+				overdraft,
+				interestRate,
+				DAY_IN_SECONDS,
+				startDate
+			]);
+			let userBalance = await ledger.getDepositBalance.call();
+			assert.equal(userBalance.toNumber(), depositAmount);
     });
   });
 
+	describe("calculateAllowedPlusOverdraft",function(){
+		it('should return 0 if no allowances',async()=> {
+      let allowanceCount = await ledger.getMyAllowancesCount();
+      assert.equal(allowanceCount.toNumber(), 0);
+			await ledger.calculateAllowedPlusOverdraft(0).should.be.rejectedWith('revert');
+		});
+
+		it('should return 150 if 100 + 50% is set',async()=> {
+			const to = accounts[1];
+			const interestRate = 1 * 10 ** 5;
+			// 50 percents is 500000
+			const overdraft = 50 * 10 ** 5;
+			const numPeriods = 2;
+			const startDate = new Date("09/09/2018").getTime() / 1000;
+
+			const amount = 100;
+			const depositAmount = 100;
+			const initialBalance = await web3.eth.getBalance(to);
+
+			await ledger.allowAndDeposit(
+				to,
+				amount,
+				overdraft,
+				interestRate,
+				numPeriods,
+				DAY_IN_SECONDS,
+				startDate,
+				{
+					from: creator,
+					value: depositAmount
+				}
+			);
+      let allowanceCount = await ledger.getAllowancesCount({from: to});
+      assert.equal(allowanceCount.toNumber(), 2);
+
+			// 0 is an index into the allowances...
+			let aapo = await ledger.calculateAllowedPlusOverdraft(0, {from: to}).should.be.fulfilled;
+			// 100 + 50% of 100
+			assert.equal(aapo.toNumber(), 150);
+		});
+	});
+
   describe("Charge logic", function() {
-    it("should allow regular charge", async () => {
-      const to = accounts[1];
-      const amount = 2 * 10 ** 18;
-      const interestRate = 1 * 10 ** 5;
-      const overdraft = 12 * 10 ** 5;
-      const numPeriods = 2;
-      const startDate = new Date("09/09/2018").getTime() / 1000;
-      const depositAmount = 1 * 10 ** 18;
-      const initialBalance = await web3.eth.getBalance(to);
-      const chargeAmount = 0.5 * 10 ** 18;
-      createAllowance(
-        ledger,
-        creator,
-        to,
-        amount,
-        interestRate,
-        overdraft,
-        numPeriods,
-        startDate,
-        depositAmount
-      );
-      ledger.charge(chargeAmount, { from: to });
-      const postBalance = await web3.eth.getBalance(to);
-      assert.equal(
-        initialBalance.toNumber() + chargeAmount,
-        postBalance.toNumber()
-      );
-    });
+    it("should not allow to charge if no allowances were set before", async () => {
+			const to = accounts[1];
+			const initialBalance = await web3.eth.getBalance(to);
+			const numAllowances = await ledger.getAllowancesCount();
+			assert.equal(numAllowances.toNumber(), 0);
+			
+			const chargeAmount = 100;
+			await ledger.charge(0, chargeAmount, { from: to }).should.be.rejectedWith('revert');
+		});
+
+    it("should not allow to charge more than AA + OD", async () => {
+			const to = accounts[1];
+			const interestRate = 1 * 10 ** 5;
+			// 10%
+			const overdraft = 10 * 10 ** 5;
+			const numPeriods = 1;
+			const startDate = new Date("09/09/2018").getTime() / 1000;
+			const initialBalance = await web3.eth.getBalance(to);
+
+			const amount = 100;
+			const depositAmount = 100;
+			const chargeAmount = 111;	// more than AA + OD
+
+			await ledger.allowAndDeposit(
+				to,
+				amount,
+				overdraft,
+				interestRate,
+				numPeriods,
+				DAY_IN_SECONDS,
+				startDate,
+				{
+					from: creator,
+					value: depositAmount
+				}
+			);
+
+      let allowanceCount = await ledger.getAllowancesCount({from: to});
+      assert.equal(allowanceCount.toNumber(), 1);
+
+			// 0 is index into SideB's allowances
+			await ledger.charge(0, chargeAmount, { from: to }).should.be.rejectedWith('revert');
+		});
+		
+    it("should set isOverdrafted flag", async () => {
+			const to = accounts[1];
+			const interestRate = 1 * 10 ** 5;
+			const numPeriods = 1;
+			const startDate = new Date("09/09/2018").getTime() / 1000;
+			const initialBalance = await web3.eth.getBalance(to);
+
+			const amount = 1 * 10 ** 18;
+			const overdraft = 10 * 10 ** 5;	// 10% 
+			const depositAmount = 1.1 * 10 ** 18;
+
+			await ledger.allowAndDeposit(
+				to,
+				amount,
+				overdraft,
+				interestRate,
+				numPeriods,
+				DAY_IN_SECONDS,
+				startDate,
+				{
+					from: creator,
+					value: depositAmount,
+					gasPrice: 0
+				}
+			);
+
+      let allowanceCount = await ledger.getAllowancesCount({from: to});
+      assert.equal(allowanceCount.toNumber(), 1);
+			
+			const od1 = await ledger.isOverdrafted(creator, to);
+			assert.equal(od1, false);
+
+			// more than AA but less than AA + OD
+			const chargeAmount = 1.01 * 10 ** 18;
+			await ledger.charge(0, chargeAmount, { from: to, gasPrice: 0 });
+			const od2 = await ledger.isOverdrafted(creator, to);
+			assert.equal(od2, true);
+
+			const postBalance = await web3.eth.getBalance(to);
+			assert.equal(
+				initialBalance.toNumber() + chargeAmount,
+				postBalance.toNumber()
+			);
+		});
+
+    it("should set isOverdrafted flag", async () => {
+			const to = accounts[1];
+			const interestRate = 1 * 10 ** 5;
+			const numPeriods = 1;
+			const startDate = new Date("09/09/2018").getTime() / 1000;
+			const initialBalance = await web3.eth.getBalance(to);
+
+			const amount = 1000;
+			const overdraft = 10 * 10 ** 5;	// 10% 
+			const depositAmount = 1100;
+
+			await ledger.allowAndDeposit(
+				to,
+				amount,
+				overdraft,
+				interestRate,
+				numPeriods,
+				DAY_IN_SECONDS,
+				startDate,
+				{
+					from: creator,
+					value: depositAmount,
+					gasPrice: 0
+				}
+			);
+
+      let allowanceCount = await ledger.getAllowancesCount({from: to});
+      assert.equal(allowanceCount.toNumber(), 1);
+			
+			const od1 = await ledger.isOverdrafted(creator, to);
+			assert.equal(od1, false);
+
+			// exactly AA
+			const chargeAmount = 1000;
+			await ledger.charge(0, chargeAmount, { from: to, gasPrice: 0 });
+			const od2 = await ledger.isOverdrafted(creator, to);
+			assert.equal(od2, false);
+
+			const postBalance = await web3.eth.getBalance(to);
+			assert.equal(
+				initialBalance.toNumber() + chargeAmount,
+				postBalance.toNumber()
+			);
+		});
+
   });
 });

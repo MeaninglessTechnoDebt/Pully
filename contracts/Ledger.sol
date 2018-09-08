@@ -42,8 +42,6 @@ contract Ledger is ISideA, ISideB {
 		uint interestRatePpm;
 		uint periodSeconds;
 		uint startingDate;
-
-		//uint erc721tokenId;//Why?
 	}
 
 	struct UserToUserState {
@@ -153,7 +151,10 @@ contract Ledger is ISideA, ISideB {
 	}
 
 	function getAllowanceInfo(uint _index) public 
-		view returns(address sideA, uint amountWei, uint overdraftPpm, uint interestRatePpm, uint periodSeconds, uint startingDate){
+		view returns(address sideA, uint amountWei, uint overdraftPpm, uint interestRatePpm, uint periodSeconds, uint startingDate)
+	{
+		require(_index < getAllowancesCount());
+
 		uint256 erc721id = userState[msg.sender].allAllowancesFrom[_index];
 		Allowance a = allowancesMetainfo[erc721id];
 
@@ -167,6 +168,8 @@ contract Ledger is ISideA, ISideB {
 
 	// only for 'transferrable allowances' that were generated automatically in case of overdraft
 	function transferAllowance(uint _index, address _to) public {
+		require(_index < getAllowancesCount());
+
 		uint256 erc721id = userState[msg.sender].allAllowancesFrom[_index];
 		Allowance a = allowancesMetainfo[erc721id];
 		require(a.transferrable);
@@ -179,8 +182,37 @@ contract Ledger is ISideA, ISideB {
 
 	// will either return money OR 
 	// will return money + generate new allowance (plus interested) to the SideB (me)
+	// _index is index in the SideB's allowances
 	function charge(uint _index, uint _amountWei) public {
-		// TODO: 
+		require(_index < getAllowancesCount());
+
+		// 1 - calc everything
+		uint256 erc721id = userState[msg.sender].allAllowancesFrom[_index];
+		Allowance a = allowancesMetainfo[erc721id];
+
+		// overdraft is in PPM
+		// 1% is 10000 PPMs
+		uint AA_with_OD = calculateAllowedPlusOverdraft(_index);
+		require(_amountWei <= AA_with_OD);
+
+		if(_amountWei <= a.amountWei){
+			// if we are asking less than AA
+			_charge(a, _amountWei);
+		} else {
+			// if we are asking more than AA but less than AA + OD 
+			// set special flag
+			user2userState[a.sideA][a.sideB].isOverdrafted = true;	
+			_charge(a, _amountWei);
+		}
+	}
+
+	// _index is a SideB's allowance index
+	function calculateAllowedPlusOverdraft(uint _index) public view returns(uint){
+		require(_index < getAllowancesCount());
+
+		uint256 erc721id = userState[msg.sender].allAllowancesFrom[_index];
+		Allowance a = allowancesMetainfo[erc721id];
+		return a.amountWei + ((a.amountWei * a.overdraftPpm) / 10000000);
 	}
 
 //////// Internal stuff
@@ -207,12 +239,28 @@ contract Ledger is ISideA, ISideB {
 		a.interestRatePpm = _interestRatePpm;
 		a.periodSeconds = _periodSeconds;
 		a.startingDate = _startingDate;
-		//a.erc721tokenId = newErc721Id;
 		allowancesMetainfo[newErc721Id] = a;
 
 		userState[msg.sender].allAllowances.push(newErc721Id);
 		userState[_to].allAllowancesFrom.push(newErc721Id);
 		
 		user2userState[msg.sender][_to].allowances.push(newErc721Id);
+	}
+
+	function _charge(Allowance _a, uint _amountWanted) internal {
+		// get current sideA balance 
+		uint balance = userState[_a.sideA].currentBalance;
+
+		if(_amountWanted <= balance){
+			// just send money 
+			_a.sideB.transfer(_amountWanted);
+			// TODO: use SafeMath
+			userState[_a.sideA].currentBalance -= _amountWanted;
+		} else {
+			// TODO: 
+			// send money
+			
+			// issue debt token
+		}
 	}
 }
