@@ -34,7 +34,7 @@ Meaning if the payer hasn't put in enough money the payee now has a few things h
 
 ## Underwriters
 
-We even utilized the [Thetta DAO framework](https://github.com/thetta) for the Underwriter subsystem. 
+We even utilized the [Thetta DAO framework](https://github.com/thetta) for an Underwriter subsystem. 
 The step-by-step scenario is as follows:
 1. User wants to become an Underwrite
 1. He calls a [becomeAnUnderwriter method](https://github.com/MeaninglessTechnoDebt/TechnoDebit/blob/master/contracts/UnderwriterSubsystem.sol) 
