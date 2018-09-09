@@ -51,12 +51,14 @@ Imagine how cool would it be to issue a direct debit for someone during a chat o
 3. Finish integration with Dharma, failing over some weird signing issues, a forked repo of the dharma smart contracts to support our NFT can be found in our repo. As well as the required overrides have been made on our contracts. The issue now seems to be with dharma.js .
 4. Refactor, everything.
 
-## Team (in alph. order))
+## Team (from left to right)
 
 1. [Anton Akentiev](github.com/anthonyakentiev)
-1. [Avichal](https://github.com/avichalp)
 1. [Boaz Berman](https://github.com/boazberman)
 1. [Yoni Svechinsky](https://github.com/svechinsky)
+1. [Avichal](https://github.com/avichalp)
+
+![Teamn photo](https://i.imgsafe.org/4d/4dd6bac3f5.jpeg)
 
 ## Tech Reqs
 https://docs.google.com/document/d/1pQy_FLmfn-ToRTYN7v-xtg1LsAVGXrNsgbfozeCWV9A/edit?usp=sharing
