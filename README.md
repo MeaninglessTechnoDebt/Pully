@@ -24,12 +24,29 @@ It's as simple as:
 And voila, you have just issued a direct debit order on-chain.
 
 Now here is where things get interesting, (and better than the existing system).
-We are issuing the direct debit rights as ERC721s a.k.a. non fungible tokens.
+We are issuing the **direct debit rights as ERC721s (a.k.a. non fungible tokens)**!!!
 Meaning if the payer hasn't put in enough money the payee now has a few things he can do about it.
-1. Sell the withdrawl right to someone else. Maybe via the dutch auction contract we built.
+
+1. Sell the withdrawl right to someone else. Maybe via the **[Dutch Auction contract](https://github.com/MeaninglessTechnoDebt/TechnoDebit/blob/master/contracts/auction/DutchAuction.sol) we built**.
 2. Use the token as collateral for a Dharma loan request.
 3. Keep holding on to it while it accures value.
 4. Anything else you may think of doing with an NFT!
+
+## Underwriters
+
+We even utilized the [Thetta DAO framework](https://github.com/thetta) for the Underwriter subsystem. 
+The step-by-step scenario is as follows:
+1. User wants to become an Underwrite
+1. He calls a [becomeAnUnderwriter method](https://github.com/MeaninglessTechnoDebt/TechnoDebit/blob/master/contracts/UnderwriterSubsystem.sol) 
+1. Moderators vote and either accept or reject it
+1. If accepted -> user is added to the 'Accepted underwriters' list.
+1. Then SideA can choose the Underwriter from this list.
+1. Underwriter should accept the request from the SideA
+
+## TODOs (what is left)
+
+1. Status integration. We tried that, but unfortunately there were some problems with the current Status release. Folks from the Status tried to help us and even deployed some built-just-for-us version, but it didn't help.
+2. Add ERC721 compatiblity to the DutchX and use their solution instead. Unfortunately, currently [DutchX](https://github.com/gnosis/dx-contracts) doesn't support ERC721 at all...
 
 ## Team (in alph. order))
 
