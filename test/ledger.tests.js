@@ -254,7 +254,7 @@ contract("Ledger", accounts => {
 			await ledger.charge(0, chargeAmount, { from: to, gasPrice: 0 }).should.be.rejectedWith('revert');
 		});
 
-		it("should not charge if startingDate is before the end", async () => {
+		it("should charge if startingDate is before the end", async () => {
 			const to = accounts[1];
 			const interestRate = 1 * 10 ** 5;
 			const numPeriods = 1;
@@ -288,7 +288,7 @@ contract("Ledger", accounts => {
 
 			// exactly AA
 			const chargeAmount = 1000;
-			await ledger.charge(0, chargeAmount, { from: to, gasPrice: 0 }).should.be.rejectedWith('revert');
+			await ledger.charge(0, chargeAmount, { from: to, gasPrice: 0 }).should.be.fulfilled;
 		});
 
 		it("should set isOverdrafted flag", async () => {
