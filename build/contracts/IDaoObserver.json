@@ -1,0 +1,226 @@
+{
+  "contractName": "IDaoObserver",
+  "abi": [
+    {
+      "constant": false,
+      "inputs": [
+        {
+          "name": "_newAddress",
+          "type": "address"
+        }
+      ],
+      "name": "onUpgrade",
+      "outputs": [],
+      "payable": false,
+      "stateMutability": "nonpayable",
+      "type": "function"
+    }
+  ],
+  "bytecode": "0x",
+  "deployedBytecode": "0x",
+  "sourceMap": "",
+  "deployedSourceMap": "",
+  "source": "pragma solidity ^0.4.23;\n\n\n/**\n * @title IDaoObserver\n * @dev Adds upgradeabilty to the contracts. Used by the DaoClient \n */\ncontract IDaoObserver {\n\tfunction onUpgrade(address _newAddress) public;\n}\n",
+  "sourcePath": "@thetta/core/contracts/IDaoObserver.sol",
+  "ast": {
+    "absolutePath": "@thetta/core/contracts/IDaoObserver.sol",
+    "exportedSymbols": {
+      "IDaoObserver": [
+        4960
+      ]
+    },
+    "id": 4961,
+    "nodeType": "SourceUnit",
+    "nodes": [
+      {
+        "id": 4954,
+        "literals": [
+          "solidity",
+          "^",
+          "0.4",
+          ".23"
+        ],
+        "nodeType": "PragmaDirective",
+        "src": "0:24:13"
+      },
+      {
+        "baseContracts": [],
+        "contractDependencies": [],
+        "contractKind": "contract",
+        "documentation": "@title IDaoObserver\n@dev Adds upgradeabilty to the contracts. Used by the DaoClient ",
+        "fullyImplemented": false,
+        "id": 4960,
+        "linearizedBaseContracts": [
+          4960
+        ],
+        "name": "IDaoObserver",
+        "nodeType": "ContractDefinition",
+        "nodes": [
+          {
+            "body": null,
+            "documentation": null,
+            "id": 4959,
+            "implemented": false,
+            "isConstructor": false,
+            "isDeclaredConst": false,
+            "modifiers": [],
+            "name": "onUpgrade",
+            "nodeType": "FunctionDefinition",
+            "parameters": {
+              "id": 4957,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 4956,
+                  "name": "_newAddress",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 4959,
+                  "src": "170:19:13",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  },
+                  "typeName": {
+                    "id": 4955,
+                    "name": "address",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "170:7:13",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_address",
+                      "typeString": "address"
+                    }
+                  },
+                  "value": null,
+                  "visibility": "internal"
+                }
+              ],
+              "src": "169:21:13"
+            },
+            "payable": false,
+            "returnParameters": {
+              "id": 4958,
+              "nodeType": "ParameterList",
+              "parameters": [],
+              "src": "197:0:13"
+            },
+            "scope": 4960,
+            "src": "151:47:13",
+            "stateMutability": "nonpayable",
+            "superFunction": null,
+            "visibility": "public"
+          }
+        ],
+        "scope": 4961,
+        "src": "126:74:13"
+      }
+    ],
+    "src": "0:201:13"
+  },
+  "legacyAST": {
+    "absolutePath": "@thetta/core/contracts/IDaoObserver.sol",
+    "exportedSymbols": {
+      "IDaoObserver": [
+        4960
+      ]
+    },
+    "id": 4961,
+    "nodeType": "SourceUnit",
+    "nodes": [
+      {
+        "id": 4954,
+        "literals": [
+          "solidity",
+          "^",
+          "0.4",
+          ".23"
+        ],
+        "nodeType": "PragmaDirective",
+        "src": "0:24:13"
+      },
+      {
+        "baseContracts": [],
+        "contractDependencies": [],
+        "contractKind": "contract",
+        "documentation": "@title IDaoObserver\n@dev Adds upgradeabilty to the contracts. Used by the DaoClient ",
+        "fullyImplemented": false,
+        "id": 4960,
+        "linearizedBaseContracts": [
+          4960
+        ],
+        "name": "IDaoObserver",
+        "nodeType": "ContractDefinition",
+        "nodes": [
+          {
+            "body": null,
+            "documentation": null,
+            "id": 4959,
+            "implemented": false,
+            "isConstructor": false,
+            "isDeclaredConst": false,
+            "modifiers": [],
+            "name": "onUpgrade",
+            "nodeType": "FunctionDefinition",
+            "parameters": {
+              "id": 4957,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 4956,
+                  "name": "_newAddress",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 4959,
+                  "src": "170:19:13",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  },
+                  "typeName": {
+                    "id": 4955,
+                    "name": "address",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "170:7:13",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_address",
+                      "typeString": "address"
+                    }
+                  },
+                  "value": null,
+                  "visibility": "internal"
+                }
+              ],
+              "src": "169:21:13"
+            },
+            "payable": false,
+            "returnParameters": {
+              "id": 4958,
+              "nodeType": "ParameterList",
+              "parameters": [],
+              "src": "197:0:13"
+            },
+            "scope": 4960,
+            "src": "151:47:13",
+            "stateMutability": "nonpayable",
+            "superFunction": null,
+            "visibility": "public"
+          }
+        ],
+        "scope": 4961,
+        "src": "126:74:13"
+      }
+    ],
+    "src": "0:201:13"
+  },
+  "compiler": {
+    "name": "solc",
+    "version": "0.4.24+commit.e67f0147.Emscripten.clang"
+  },
+  "networks": {},
+  "schemaVersion": "2.0.1",
+  "updatedAt": "2018-09-09T10:03:55.736Z"
+}

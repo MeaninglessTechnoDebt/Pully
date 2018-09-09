@@ -1,0 +1,341 @@
+{
+  "contractName": "IProposal",
+  "abi": [
+    {
+      "constant": false,
+      "inputs": [],
+      "name": "action",
+      "outputs": [],
+      "payable": false,
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "constant": true,
+      "inputs": [],
+      "name": "getVoting",
+      "outputs": [
+        {
+          "name": "voting",
+          "type": "address"
+        }
+      ],
+      "payable": false,
+      "stateMutability": "view",
+      "type": "function"
+    }
+  ],
+  "bytecode": "0x",
+  "deployedBytecode": "0x",
+  "sourceMap": "",
+  "deployedSourceMap": "",
+  "source": "pragma solidity ^0.4.22;\n\nimport \"./IVoting.sol\";\nimport \"../IDaoBase.sol\";\n\n\n/**\n * @title IProposal \n * @dev This is the basic DAO Proposal interface. Each Proposal should have voting attached. \n * Proposal can do some action if voting is finished with 'yes' result. Or action can be empty. \n*/\ncontract IProposal {\n\tfunction action()public;\n\tfunction getVoting()public view returns(IVoting voting);\n\n\t// ???\n\t// function isOpen() public constant returns(bool);\n}\n\n",
+  "sourcePath": "@thetta/core/contracts/governance/IProposal.sol",
+  "ast": {
+    "absolutePath": "@thetta/core/contracts/governance/IProposal.sol",
+    "exportedSymbols": {
+      "IProposal": [
+        4973
+      ]
+    },
+    "id": 4974,
+    "nodeType": "SourceUnit",
+    "nodes": [
+      {
+        "id": 4962,
+        "literals": [
+          "solidity",
+          "^",
+          "0.4",
+          ".22"
+        ],
+        "nodeType": "PragmaDirective",
+        "src": "0:24:14"
+      },
+      {
+        "absolutePath": "@thetta/core/contracts/governance/IVoting.sol",
+        "file": "./IVoting.sol",
+        "id": 4963,
+        "nodeType": "ImportDirective",
+        "scope": 4974,
+        "sourceUnit": 5007,
+        "src": "26:23:14",
+        "symbolAliases": [],
+        "unitAlias": ""
+      },
+      {
+        "absolutePath": "@thetta/core/contracts/IDaoBase.sol",
+        "file": "../IDaoBase.sol",
+        "id": 4964,
+        "nodeType": "ImportDirective",
+        "scope": 4974,
+        "sourceUnit": 4953,
+        "src": "50:25:14",
+        "symbolAliases": [],
+        "unitAlias": ""
+      },
+      {
+        "baseContracts": [],
+        "contractDependencies": [],
+        "contractKind": "contract",
+        "documentation": "@title IProposal \n@dev This is the basic DAO Proposal interface. Each Proposal should have voting attached. \nProposal can do some action if voting is finished with 'yes' result. Or action can be empty. ",
+        "fullyImplemented": false,
+        "id": 4973,
+        "linearizedBaseContracts": [
+          4973
+        ],
+        "name": "IProposal",
+        "nodeType": "ContractDefinition",
+        "nodes": [
+          {
+            "body": null,
+            "documentation": null,
+            "id": 4967,
+            "implemented": false,
+            "isConstructor": false,
+            "isDeclaredConst": false,
+            "modifiers": [],
+            "name": "action",
+            "nodeType": "FunctionDefinition",
+            "parameters": {
+              "id": 4965,
+              "nodeType": "ParameterList",
+              "parameters": [],
+              "src": "334:2:14"
+            },
+            "payable": false,
+            "returnParameters": {
+              "id": 4966,
+              "nodeType": "ParameterList",
+              "parameters": [],
+              "src": "342:0:14"
+            },
+            "scope": 4973,
+            "src": "319:24:14",
+            "stateMutability": "nonpayable",
+            "superFunction": null,
+            "visibility": "public"
+          },
+          {
+            "body": null,
+            "documentation": null,
+            "id": 4972,
+            "implemented": false,
+            "isConstructor": false,
+            "isDeclaredConst": true,
+            "modifiers": [],
+            "name": "getVoting",
+            "nodeType": "FunctionDefinition",
+            "parameters": {
+              "id": 4968,
+              "nodeType": "ParameterList",
+              "parameters": [],
+              "src": "363:2:14"
+            },
+            "payable": false,
+            "returnParameters": {
+              "id": 4971,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 4970,
+                  "name": "voting",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 4972,
+                  "src": "385:14:14",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_contract$_IVoting_$5006",
+                    "typeString": "contract IVoting"
+                  },
+                  "typeName": {
+                    "contractScope": null,
+                    "id": 4969,
+                    "name": "IVoting",
+                    "nodeType": "UserDefinedTypeName",
+                    "referencedDeclaration": 5006,
+                    "src": "385:7:14",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_contract$_IVoting_$5006",
+                      "typeString": "contract IVoting"
+                    }
+                  },
+                  "value": null,
+                  "visibility": "internal"
+                }
+              ],
+              "src": "384:16:14"
+            },
+            "scope": 4973,
+            "src": "345:56:14",
+            "stateMutability": "view",
+            "superFunction": null,
+            "visibility": "public"
+          }
+        ],
+        "scope": 4974,
+        "src": "297:168:14"
+      }
+    ],
+    "src": "0:467:14"
+  },
+  "legacyAST": {
+    "absolutePath": "@thetta/core/contracts/governance/IProposal.sol",
+    "exportedSymbols": {
+      "IProposal": [
+        4973
+      ]
+    },
+    "id": 4974,
+    "nodeType": "SourceUnit",
+    "nodes": [
+      {
+        "id": 4962,
+        "literals": [
+          "solidity",
+          "^",
+          "0.4",
+          ".22"
+        ],
+        "nodeType": "PragmaDirective",
+        "src": "0:24:14"
+      },
+      {
+        "absolutePath": "@thetta/core/contracts/governance/IVoting.sol",
+        "file": "./IVoting.sol",
+        "id": 4963,
+        "nodeType": "ImportDirective",
+        "scope": 4974,
+        "sourceUnit": 5007,
+        "src": "26:23:14",
+        "symbolAliases": [],
+        "unitAlias": ""
+      },
+      {
+        "absolutePath": "@thetta/core/contracts/IDaoBase.sol",
+        "file": "../IDaoBase.sol",
+        "id": 4964,
+        "nodeType": "ImportDirective",
+        "scope": 4974,
+        "sourceUnit": 4953,
+        "src": "50:25:14",
+        "symbolAliases": [],
+        "unitAlias": ""
+      },
+      {
+        "baseContracts": [],
+        "contractDependencies": [],
+        "contractKind": "contract",
+        "documentation": "@title IProposal \n@dev This is the basic DAO Proposal interface. Each Proposal should have voting attached. \nProposal can do some action if voting is finished with 'yes' result. Or action can be empty. ",
+        "fullyImplemented": false,
+        "id": 4973,
+        "linearizedBaseContracts": [
+          4973
+        ],
+        "name": "IProposal",
+        "nodeType": "ContractDefinition",
+        "nodes": [
+          {
+            "body": null,
+            "documentation": null,
+            "id": 4967,
+            "implemented": false,
+            "isConstructor": false,
+            "isDeclaredConst": false,
+            "modifiers": [],
+            "name": "action",
+            "nodeType": "FunctionDefinition",
+            "parameters": {
+              "id": 4965,
+              "nodeType": "ParameterList",
+              "parameters": [],
+              "src": "334:2:14"
+            },
+            "payable": false,
+            "returnParameters": {
+              "id": 4966,
+              "nodeType": "ParameterList",
+              "parameters": [],
+              "src": "342:0:14"
+            },
+            "scope": 4973,
+            "src": "319:24:14",
+            "stateMutability": "nonpayable",
+            "superFunction": null,
+            "visibility": "public"
+          },
+          {
+            "body": null,
+            "documentation": null,
+            "id": 4972,
+            "implemented": false,
+            "isConstructor": false,
+            "isDeclaredConst": true,
+            "modifiers": [],
+            "name": "getVoting",
+            "nodeType": "FunctionDefinition",
+            "parameters": {
+              "id": 4968,
+              "nodeType": "ParameterList",
+              "parameters": [],
+              "src": "363:2:14"
+            },
+            "payable": false,
+            "returnParameters": {
+              "id": 4971,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 4970,
+                  "name": "voting",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 4972,
+                  "src": "385:14:14",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_contract$_IVoting_$5006",
+                    "typeString": "contract IVoting"
+                  },
+                  "typeName": {
+                    "contractScope": null,
+                    "id": 4969,
+                    "name": "IVoting",
+                    "nodeType": "UserDefinedTypeName",
+                    "referencedDeclaration": 5006,
+                    "src": "385:7:14",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_contract$_IVoting_$5006",
+                      "typeString": "contract IVoting"
+                    }
+                  },
+                  "value": null,
+                  "visibility": "internal"
+                }
+              ],
+              "src": "384:16:14"
+            },
+            "scope": 4973,
+            "src": "345:56:14",
+            "stateMutability": "view",
+            "superFunction": null,
+            "visibility": "public"
+          }
+        ],
+        "scope": 4974,
+        "src": "297:168:14"
+      }
+    ],
+    "src": "0:467:14"
+  },
+  "compiler": {
+    "name": "solc",
+    "version": "0.4.24+commit.e67f0147.Emscripten.clang"
+  },
+  "networks": {},
+  "schemaVersion": "2.0.1",
+  "updatedAt": "2018-09-09T10:03:55.736Z"
+}
