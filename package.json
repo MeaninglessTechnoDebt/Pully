@@ -1,24 +1,26 @@
 {
-  "name": "TechnoDebit",
-  "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
-  "scripts": {
-    "test": "scripts/test.sh"
-  },
-  "author": "",
-  "license": "ISC",
-  "devDependencies": {
-    "truffle": "^4.1.14"
-  },
-  "dependencies": {
-    "@thetta/core": "^1.4.0",
-    "chai": "^4.1.2",
-    "chai-as-promised": "^7.1.1",
-    "chai-bignumber": "^2.0.2",
-    "ganache-cli": "^6.1.8",
-    "truffle-contract": "^3.0.6",
-    "truffle-hdwallet-provider": "0.0.5",
-    "zeppelin-solidity": "^1.12.0"
-  }
+	"name": "TechnoDebit",
+	"version": "1.0.0",
+	"description": "",
+	"main": "index.js",
+	"scripts": {
+		"test": "scripts/test.sh",
+		"build-contracts": "sol-merger \"./contracts/*.sol\" ./build"
+	},
+	"author": "",
+	"license": "ISC",
+	"devDependencies": {
+		"sol-merger": "^0.1.2",
+		"truffle": "^4.1.14"
+	},
+	"dependencies": {
+		"@thetta/core": "^1.4.0",
+		"chai": "^4.1.2",
+		"chai-as-promised": "^7.1.1",
+		"chai-bignumber": "^2.0.2",
+		"ganache-cli": "^6.1.8",
+		"truffle-contract": "^3.0.6",
+		"truffle-hdwallet-provider": "0.0.5",
+		"zeppelin-solidity": "^1.12.0"
+	}
 }
