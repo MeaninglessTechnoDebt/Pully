@@ -5,6 +5,12 @@
   <p align="center">"Direct debit made easy!"</p>
 </p>
 
+## Tech Reqs
+https://docs.google.com/document/d/1pQy_FLmfn-ToRTYN7v-xtg1LsAVGXrNsgbfozeCWV9A/edit?usp=sharing
+
+## Ledger Contract (NFT registry)
+https://rinkeby.etherscan.io/address/0xe04436a2a02c68220d9e7b5164def4ac8a5ca04f
+
 ## Description
 Direct Debit is a simple concept that has widespread usage in todays economy.
 Allowing the payer to provide a "pull" permission to the payee to withdraw money from their account. 
@@ -59,12 +65,6 @@ Imagine how cool would it be to issue a direct debit for someone during a chat o
 1. [Avichal](https://github.com/avichalp)
 
 ![Teamn photo](https://i.imgsafe.org/4d/4dd6bac3f5.jpeg)
-
-## Tech Reqs
-https://docs.google.com/document/d/1pQy_FLmfn-ToRTYN7v-xtg1LsAVGXrNsgbfozeCWV9A/edit?usp=sharing
-
-## Ledger Contract (NFT registry)
-https://rinkeby.etherscan.io/address/0xe04436a2a02c68220d9e7b5164def4ac8a5ca04f
 
 ## How to run tests
 ```
