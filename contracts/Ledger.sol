@@ -296,12 +296,12 @@ contract Ledger is ISideA, ISideB, ERC721Token("Pully","PULL") {
 		// 3 - go charge SideA!
 		if(_amountWei <= a.amountWei){
 			// if we are asking less than AA
-			_charge(a, _amountWei);
+			_charge(a, _amountWei, erc721id);
 		} else {
 			// if we are asking more than AA but less than AA + OD 
 			// set special flag
 			user2userState[a.sideA][a.sideB].isOverdrafted = true;	
-			_charge(a, _amountWei);
+			_charge(a, _amountWei, erc721id);
 		}
 	}
 
@@ -352,7 +352,7 @@ contract Ledger is ISideA, ISideB, ERC721Token("Pully","PULL") {
 	 }
 
 	 // send money from SideA -> SideB
-	 function _charge(Allowance _a, uint _amountWanted) internal {
+	 function _charge(Allowance _a, uint _amountWanted, uint256 _erc721Id) internal {
 		// 1 - get current sideA balance 
 		uint balance = userState[_a.sideA].currentBalance;
 
@@ -360,10 +360,13 @@ contract Ledger is ISideA, ISideB, ERC721Token("Pully","PULL") {
 			// 2 - just send money 
 			_a.sideB.transfer(_amountWanted);
 			userState[_a.sideA].currentBalance -= _amountWanted;
+			allowancesMetainfo[_erc721Id].amountWei -= _amountWanted;
 		 } else {
 			 // special outcome: if SideA has LESS money than SideB wants (and was allowed)
 			 // 3 - send all avail money
 			_a.sideB.transfer(balance);
+			allowancesMetainfo[_erc721Id].amountWei = 0;
+
 			uint remainder = _amountWanted.sub(balance);
 			userState[_a.sideA].currentBalance = 0;
 
