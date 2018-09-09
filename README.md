@@ -9,7 +9,7 @@
 https://docs.google.com/document/d/1pQy_FLmfn-ToRTYN7v-xtg1LsAVGXrNsgbfozeCWV9A/edit?usp=sharing
 
 ## Ledger Contract (NFT registry)
-https://rinkeby.etherscan.io/address/0x9bafd635a260ab1b4690f68ad605e8750ad6f437
+https://rinkeby.etherscan.io/address/0x7cf652e0d20ba4f590f6951347f6ce673c156520
 
 ## Description
 Direct Debit is a simple concept that has widespread usage in todays economy.
