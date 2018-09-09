@@ -5,14 +5,21 @@
   <p align="center">"Direct debit made easy!"</p>
 </p>
 
+## Description
 TODO: Text Description goes here
+
+## Team (in alph. order))
+
+1. [Anton Akentiev](github.com/anthonyakentiev)
+1. [Avichal](https://github.com/avichalp)
+1. [Boaz Berman](https://github.com/boazberman)
+1. [Yoni Svechinsky](https://github.com/svechinsky)
 
 ## Tech Reqs
 https://docs.google.com/document/d/1pQy_FLmfn-ToRTYN7v-xtg1LsAVGXrNsgbfozeCWV9A/edit?usp=sharing
 
 
 ## How to run tests
-
 ```
 npm install
 
