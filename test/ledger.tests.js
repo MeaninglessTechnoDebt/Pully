@@ -343,9 +343,9 @@ contract("Ledger", accounts => {
 			const startDate = Date.now() / 1000;
 			const initialBalance = await web3.eth.getBalance(to);
 
-			const amount = 1000;
+			const amount = 1 * 10 ** 18;
 			const overdraft = 10 * 10 ** 5;	// 10% 
-			const depositAmount = 1100;
+			const depositAmount = 1.1 * 10 ** 18;
 
 			await ledger.allowAndDeposit(
 				to,
@@ -369,7 +369,7 @@ contract("Ledger", accounts => {
 			assert.equal(od1, false);
 
 			// exactly AA
-			const chargeAmount = 1000;
+			const chargeAmount = 1 * 10 ** 18;
 			await ledger.charge(0, chargeAmount, { from: to, gasPrice: 0 });
 			const od2 = await ledger.isOverdrafted(creator, to);
 			assert.equal(od2, false);
@@ -407,8 +407,23 @@ contract("Ledger", accounts => {
 				}
 			);
 
+			let allowanceCountSide1 = await ledger.getMyAllowancesCount({from: creator});
+			assert.equal(allowanceCountSide1.toNumber(), 1);
+
+			let allowanceCountSide2 = await ledger.getMyAllowancesCount({from: to});
+			assert.equal(allowanceCountSide2.toNumber(), 0);
+
+			let allowanceCountSide1From = await ledger.getAllowancesCount({from: creator});
+			assert.equal(allowanceCountSide1From.toNumber(), 0);
+
+			let allowanceCountSide2From = await ledger.getAllowancesCount({from: to});
+			assert.equal(allowanceCountSide2From.toNumber(), 1);
+			
+			// 
 			const tokenId = await ledger.tokenOfOwnerByIndex(to, 0).should.be.fulfilled;
 			assert.notEqual(tokenId.toNumber(),0);
+			
+			await ledger.tokenOfOwnerByIndex(to, 1).should.be.rejectedWith('revert');
 
 			let userBalance = await ledger.getDepositBalance.call();
 			assert.equal(userBalance, depositAmount);
@@ -429,6 +444,42 @@ contract("Ledger", accounts => {
 			// check that additional allowance (plus interest) token is issued!
 			const tokenId2 = await ledger.tokenOfOwnerByIndex(to, 1).should.be.fulfilled;
 			assert.notEqual(tokenId2.toNumber(),0);
+
+			// 1 - check the new allowance generated 
+			allowanceCountSide1 = await ledger.getMyAllowancesCount({from: creator});
+			assert.equal(allowanceCountSide1.toNumber(), 2);
+
+			allowanceCountSide2 = await ledger.getMyAllowancesCount({from: to});
+			assert.equal(allowanceCountSide2.toNumber(), 0);
+
+			allowanceCountSide1From = await ledger.getAllowancesCount({from: creator});
+			assert.equal(allowanceCountSide1From.toNumber(), 0);
+
+			allowanceCountSide2From = await ledger.getAllowancesCount({from: to});
+			assert.equal(allowanceCountSide2From.toNumber(), 2);
+
+			// 2 - check 1st allowance 
+			let createdAllowance = await ledger.getMyAllowanceInfo(0,{from: creator});
+			assert.equal(createdAllowance[0], to);
+			assert.equal(createdAllowance[1].toNumber(), 0);
+			assert.equal(createdAllowance[2].toNumber(), overdraft);
+			assert.equal(createdAllowance[6], false);
+
+			createdAllowance = await ledger.getAllowanceInfo(0,{from: to});
+			assert.equal(createdAllowance[0], creator);
+			assert.equal(createdAllowance[1].toNumber(), 0);
+			assert.equal(createdAllowance[6], false);
+			
+			// 3 - check 2nd allowance (new one)
+			createdAllowance = await ledger.getMyAllowanceInfo(1,{from: creator});
+			assert.equal(createdAllowance[0], to);
+			assert.equal(createdAllowance[1].toNumber(), 220000000000000000);
+			assert.equal(createdAllowance[6], true);
+			
+			createdAllowance = await ledger.getAllowanceInfo(1,{from: to});
+			assert.equal(createdAllowance[0], creator);
+			assert.equal(createdAllowance[1].toNumber(), 220000000000000000);
+			assert.equal(createdAllowance[6], true);
 		});
 
 		it("should return FRACTION of amount if not enough money (with overdraft)", async () => {
@@ -490,7 +541,7 @@ contract("Ledger", accounts => {
 		it("should not transer if no allowances", async () => {
 			const to = accounts[1];
 			const extraGuy = accounts[2];
-			ledger.transferAllowance(0, extraGuy, {from: to}).should.be.rejectedWith('revert');
+			await ledger.transferAllowance(0, extraGuy, {from: to}).should.be.rejectedWith('revert');
 		});
 
 		it("should not allow to transer if not transferrable", async () => {
@@ -525,7 +576,7 @@ contract("Ledger", accounts => {
 			assert.equal(allowanceCount.toNumber(), 1);
 
 			// try to transfer it
-			ledger.transferAllowance(0, extraGuy, {from: to}).should.be.rejectedWith('revert');
+			await ledger.transferAllowance(0, extraGuy, {from: to}).should.be.rejectedWith('revert');
 		});
 
 		it("should transfer additional allowance", async () => {
@@ -583,7 +634,7 @@ contract("Ledger", accounts => {
 			assert.equal(allowanceCount2before.toNumber(), 0);
 
 			// transfer 
-			ledger.transferAllowance(1, extraGuy, {from: to}).should.be.fulfilled;
+			await ledger.transferAllowance(1, extraGuy, {from: to}).should.be.fulfilled;
 
 			// do additional checks
 			const tokenIdExtra = await ledger.tokenOfOwnerByIndex(extraGuy, 0).should.be.fulfilled;
