@@ -23,7 +23,7 @@ So with the help of the mentors of ETHBerlin (special thanks to the dharma team 
 An easy to use direct debit system running on ethereum.
 
 It's as simple as:
-1. Going to our website (TODO: add link) (or running a locally hosted version)
+1. Going to our website (or running a locally hosted version)
 2. Adding a benefactor 
 3. Funding your expense account
 
