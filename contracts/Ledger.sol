@@ -231,43 +231,11 @@ contract Ledger is ISideA, ISideB, ERC721Token("Pully","PULL") {
 		Allowance a = allowancesMetainfo[erc721id];
 		require(a.transferrable);
 
-		// 1 - move ERC721 token to _to address 
-		safeTransferFrom(msg.sender, _to, erc721id);
-
-		// 2 - change all internal structs 
-		// 2.1 allowancesMetainfo 
-		allowancesMetainfo[erc721id].sideB = _to;
-
-		// 2.2 userState 
-		// remove allowance from msg.sender 
-		// TODO: very shitty loop!
-		for(uint i=0; i<userState[msg.sender].allAllowancesFrom.length; ++i){
-			if(userState[msg.sender].allAllowancesFrom[i]==erc721id){
-				userState[msg.sender].allAllowancesFrom[i] = 0;
-			}
-		}
-
-		// add allowance to _to
-		userState[_to].allAllowancesFrom.push(erc721id);
-
-		// 2.3 user2userState 
-		// TODO: very shitty loop!
-		for(i=0; i<user2userState[a.sideA][msg.sender].allowances.length; ++i){
-			if(user2userState[a.sideA][msg.sender].allowances[i]==erc721id){
-				// remove it from A -> B
-				user2userState[a.sideA][msg.sender].allowances[i] = 0;
-			}
-		}
-
-		// connect it A -> TO
-		user2userState[a.sideA][_to].allowances.push(erc721id);
+		super.safeTransferFrom(msg.sender, _to, erc721id);
 	}
 
-
-	// Function to comply with dharma debt token, like the function above needs refactor
-	function transferFrom(address _from, address _to, uint erc721id  ) public{
-		//require(_index < getAllowancesCount());
-
+	// Function to comply with dharma debt token
+	function transferFrom(address _from, address _to, uint erc721id) public {
 		//uint256 erc721id = userState[msg.sender].allAllowancesFrom[_index];
 		Allowance a = allowancesMetainfo[erc721id];
 		require(a.transferrable);
@@ -303,14 +271,12 @@ contract Ledger is ISideA, ISideB, ERC721Token("Pully","PULL") {
 		// connect it A -> TO
 		user2userState[a.sideA][_to].allowances.push(erc721id);
 	}
-
 	
 	/**
 	* @dev Will either return money OR will return money + generate new allowance (plus interested) to the SideB (me)
 	* @param _index Current alowance index (in terms of SideB). Use getAllowancesCount() to get total count
 	* @param _amountWei Should be less than AllowedAmount + OverDraft
 	*/
-
 	function charge(uint _index, uint _amountWei) public {
 		require(_index < getAllowancesCount());
 
