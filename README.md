@@ -8,6 +8,10 @@
 ## Description
 TODO: Text Description goes here
 
+## Ledger (main) smart contract address
+
+https://rinkeby.etherscan.io/address/0xe04436a2a02c68220d9e7b5164def4ac8a5ca04f
+
 ## Team (in alph. order))
 
 1. [Anton Akentiev](github.com/anthonyakentiev)
