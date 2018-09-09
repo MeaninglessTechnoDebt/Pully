@@ -34,19 +34,22 @@ Meaning if the payer hasn't put in enough money the payee now has a few things h
 
 ## Underwriters
 
-We even utilized the [Thetta DAO framework](https://github.com/thetta) for the Underwriter subsystem. 
+We even utilized the [Thetta DAO framework](https://github.com/thetta) for an Underwriter subsystem. 
 The step-by-step scenario is as follows:
 1. User wants to become an Underwrite
 1. He calls a [becomeAnUnderwriter method](https://github.com/MeaninglessTechnoDebt/TechnoDebit/blob/master/contracts/UnderwriterSubsystem.sol) 
 1. Moderators vote and either accept or reject it
 1. If accepted -> user is added to the 'Accepted underwriters' list.
 1. Then SideA can choose the Underwriter from this list.
-1. Underwriter should accept the request from the SideA
+1. Underwriter should accept the request from the payer and provide additional gurantees in terms of later collateralizing allowance token from the payer.
 
 ## TODOs (what is left)
 
 1. Status integration. We tried that, but unfortunately there were some problems with the current Status release. Folks from the Status tried to help us and even deployed some built-just-for-us version, but it didn't help.
+Imagine how cool would it be to issue a direct debit for someone during a chat on status!!!
 2. Add ERC721 compatiblity to the DutchX and use their solution instead. Unfortunately, currently [DutchX](https://github.com/gnosis/dx-contracts) doesn't support ERC721 at all...
+3. Finish integration with Dharma, failing over some weird signing issues, a forked repo of the dharma smart contracts to support our NFT can be found in our repo. As well as the required overrides have been made on our contracts. The issue now seems to be with dharma.js .
+4. Refactor, everything.
 
 ## Team (in alph. order))
 
