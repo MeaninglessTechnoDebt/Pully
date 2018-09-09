@@ -325,7 +325,7 @@ contract Ledger is ISideA, ISideB, ERC721Token("Pully","PULL") {
 
 		// 2 - check that startingDate is OK
 		require(block.timestamp >= a.startingDate);
-		require(block.timestamp < (a.startingDate + a.periodSeconds));
+		// require(block.timestamp < (a.startingDate + a.periodSeconds)); // TODO: not sure why would we want to prevent charging to late
 
 		// 3 - go charge SideA!
 		if(_amountWei <= a.amountWei){
