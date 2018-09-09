@@ -41,6 +41,8 @@ Meaning if the payer hasn't put in enough money the payee now has a few things h
 ## Tech Reqs
 https://docs.google.com/document/d/1pQy_FLmfn-ToRTYN7v-xtg1LsAVGXrNsgbfozeCWV9A/edit?usp=sharing
 
+## Ledger Contract (NFT registry)
+https://rinkeby.etherscan.io/address/0xe04436a2a02c68220d9e7b5164def4ac8a5ca04f
 
 ## How to run tests
 ```
