@@ -1,7 +1,7 @@
 <p align="center">
   <img alt="TechnoDebit logo" src="https://cdn.dribbble.com/users/344048/screenshots/3163716/old_robot.gif" height="250"/>
 
-  <h3 align="center">TechnoDebit</h3>
+  <h3 align="center">Pully</h3>
   <p align="center">"Direct debit made easy!"</p>
 </p>
 
