@@ -329,7 +329,7 @@ contract Ledger is ISideA, ISideB, ERC721Token("Pully","PULL") {
 		bool _transferable) internal 
 	 {
 		// 1 - issue new ERC721 token 
-		uint256 newErc721Id = uint(keccak256(msg.sender, _to, _startingDate, _periodSeconds ));
+		uint256 newErc721Id = uint(keccak256(_from, _to, _startingDate, _periodSeconds ));
 		ERC721Token._mint(_to, newErc721Id);
 
 		// 2 - push Allowance struct to allowancesMetainfo
@@ -345,10 +345,10 @@ contract Ledger is ISideA, ISideB, ERC721Token("Pully","PULL") {
 		a.startingDate = _startingDate;
 		allowancesMetainfo[newErc721Id] = a;
 
-		userState[msg.sender].allAllowances.push(newErc721Id);
+		userState[_from].allAllowances.push(newErc721Id);
 		userState[_to].allAllowancesFrom.push(newErc721Id);
 
-		user2userState[msg.sender][_to].allowances.push(newErc721Id);
+		user2userState[_from][_to].allowances.push(newErc721Id);
 	 }
 
 	 // send money from SideA -> SideB
