@@ -231,8 +231,17 @@ contract Ledger is ISideA, ISideB, ERC721Token("Pully","PULL") {
 		Allowance a = allowancesMetainfo[erc721id];
 		require(a.transferrable);
 
+		super.safeTransferFrom(msg.sender, _to, erc721id);
+	}
+
+	// Function to comply with dharma debt token
+	function transferFrom(address _from, address _to, uint erc721id) public {
+		//uint256 erc721id = userState[msg.sender].allAllowancesFrom[_index];
+		Allowance a = allowancesMetainfo[erc721id];
+		require(a.transferrable);
+
 		// 1 - move ERC721 token to _to address 
-		safeTransferFrom(msg.sender, _to, erc721id);
+		super.transferFrom(_from, _to, erc721id);
 
 		// 2 - change all internal structs 
 		// 2.1 allowancesMetainfo 
@@ -262,7 +271,7 @@ contract Ledger is ISideA, ISideB, ERC721Token("Pully","PULL") {
 		// connect it A -> TO
 		user2userState[a.sideA][_to].allowances.push(erc721id);
 	}
-
+	
 	/**
 	* @dev Will either return money OR will return money + generate new allowance (plus interested) to the SideB (me)
 	* @param _index Current alowance index (in terms of SideB). Use getAllowancesCount() to get total count
@@ -282,7 +291,7 @@ contract Ledger is ISideA, ISideB, ERC721Token("Pully","PULL") {
 
 		// 2 - check that startingDate is OK
 		require(block.timestamp >= a.startingDate);
-		require(block.timestamp < (a.startingDate + a.periodSeconds));
+		// require(block.timestamp < (a.startingDate + a.periodSeconds)); // TODO: not sure why would we want to prevent charging to late
 
 		// 3 - go charge SideA!
 		if(_amountWei <= a.amountWei){
