@@ -38,6 +38,11 @@ Meaning if the payer hasn't put in enough money the payee now has a few things h
 3. Keep holding on to it while it accures value.
 4. Anything else you may think of doing with an NFT!
 
+<p align="center">
+  <img alt="TechnoDebit logo" src="https://i.imgsafe.org/4e/4e5234492b.png" height="400"/>
+</p>
+
+
 ## Underwriters
 
 We even utilized the [Thetta DAO framework](https://github.com/thetta) for an Underwriter subsystem. 
